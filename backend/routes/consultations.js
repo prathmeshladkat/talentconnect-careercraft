@@ -163,6 +163,7 @@ router.post('/', async (req, res) => {
         });
     }
 });
+
 // PUT /api/consultations/:id/status - Update consultation status
 router.put('/:id/status', async (req, res) => {
     try {
