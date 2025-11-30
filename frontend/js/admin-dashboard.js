@@ -696,9 +696,7 @@ function updateLastUpdatedTime() {
 }
 
 function logout() {
-  // always show login when admin opens dashboard next time
-  document.getElementById("adminDashboardSection").classList.add("hidden");
-  document.getElementById("adminLoginSection").classList.remove("hidden");
+  window.location.href = "index.html";
 }
 
 async function handleAdminLogin(event) {
