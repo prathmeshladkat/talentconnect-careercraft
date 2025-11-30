@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
 (() => {
-  const API_BASE = `${API_BASE}/api/courses`;
+  const API_BASE = "https://talentconnect-careercraft.onrender.com/api/courses";
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
@@ -696,7 +696,9 @@ function updateLastUpdatedTime() {
 }
 
 function logout() {
-  window.location.href = "index.html"; // or your homepage
+  // always show login when admin opens dashboard next time
+  document.getElementById("adminDashboardSection").classList.add("hidden");
+  document.getElementById("adminLoginSection").classList.remove("hidden");
 }
 
 async function handleAdminLogin(event) {
@@ -766,8 +768,11 @@ function showToast(message, type = "info") {
   }, 2200);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (localStorage.getItem("adminLoggedIn") === "true") {
-    showAdminDashboard();
-  }
-});
+function showAdminDashboard() {
+  document.getElementById("adminLoginSection").classList.add("hidden");
+  document.getElementById("adminDashboardSection").classList.remove("hidden");
+
+  // show stats immediately after dashboard is visible
+  loadOverviewStats();
+  updateLastUpdatedTime();
+}
