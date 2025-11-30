@@ -1,4 +1,7 @@
 // Section navigation
+
+const API_BASE = "https://talentconnect-careercraft.onrender.com";
+
 function showSection(section) {
   const sections = [
     "overview",
@@ -62,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
 (() => {
-  const API_BASE = "http://localhost:5000/api/courses";
+  const API_BASE = `${API_BASE}/api/courses`;
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
@@ -247,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ---------------- Hiring Partners Section ---------------- */
 
-const PARTNERS_API = "http://localhost:5000/api/partners";
+const PARTNERS_API = `${API_BASE}/api/partners`;
 let partnersData = [];
 let editingPartnerId = null;
 
@@ -363,7 +366,7 @@ loadPartners();
 
 //success stories
 /* ---------------- SUCCESS STORIES ---------------- */
-const SUCCESS_API = "http://localhost:5000/api/success_stories";
+const SUCCESS_API = `${API_BASE}/api/success_stories`;
 
 let activeStoryId = null;
 let selectedRating = 5;
@@ -489,7 +492,7 @@ function triggerSuccessLoad() {
 }
 
 /* ---------- REGISTERED USERS ---------- */
-const USERS_API = "http://localhost:5000/api/registrations";
+const USERS_API = `${API_BASE}/api/registrations`;
 const usersTableBody = document.getElementById("usersTableBody");
 const totalUsersBadge = document.getElementById("totalUsersBadge");
 
@@ -544,7 +547,7 @@ async function downloadCV(id) {
 }
 
 /* ---------------- EXPERT MEETINGS ---------------- */
-const MEETINGS_API = "http://localhost:5000/api/consultations";
+const MEETINGS_API = `${API_BASE}/api/consultations`;
 const meetingsTable = document.getElementById("meetingsTable");
 const totalMeetings = document.getElementById("totalMeetings");
 
@@ -645,7 +648,7 @@ function setActive(el) {
   el.classList.add("active");
 }
 
-const OVERVIEW_STATS_API = "http://localhost:5000/api/overview/stats";
+const OVERVIEW_STATS_API = `${API_BASE}/api/overview/stats`;
 
 async function loadOverviewStats() {
   try {
@@ -708,7 +711,7 @@ async function handleAdminLogin(event) {
   submitBtn.innerText = "Verifying...";
 
   try {
-    const res = await fetch("http://localhost:5000/api/admins/login", {
+    const res = await fetch(`${API_BASE}/api/admins/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

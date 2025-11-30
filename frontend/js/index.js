@@ -1,7 +1,8 @@
 /* ---------- CONFIG ---------- */
+const API_BASE = "https://talentconnect-careercraft.onrender.com";
 
 /*-------------program highlights------------ */
-const SITE_STATS_API = "http://localhost:5000/api/site_stats";
+const SITE_STATS_API = `${API_BASE}/api/site_stats`;
 
 async function loadProgramHighlights() {
   const fallback = {
@@ -51,7 +52,7 @@ async function loadProgramHighlights() {
 document.addEventListener("DOMContentLoaded", loadProgramHighlights);
 
 /*--------------------courses section ----------------------- */
-const COURSES_API = "http://localhost:5000/api/courses";
+const COURSES_API = `${API_BASE}/api/courses`;
 
 async function loadCoursesLanding() {
   const grid = document.getElementById("coursesGrid");
@@ -106,7 +107,7 @@ document.addEventListener("DOMContentLoaded", loadCoursesLanding);
 /*---------------career craft journey --------------- */
 async function loadCareerStats() {
   try {
-    const res = await fetch("http://localhost:5000/api/site_stats");
+    const res = await fetch(`${API_BASE}/api/site_stats`);
     const data = await res.json();
 
     document.getElementById("successRate").innerText = data.success_rate || "—";
@@ -154,7 +155,7 @@ function animateCounter(element, endValue, duration = 1200) {
 
 async function loadStipendDetails() {
   try {
-    const res = await fetch("http://localhost:5000/api/site_stats");
+    const res = await fetch(`${API_BASE}/api/site_stats`);
     const data = await res.json();
 
     const minEl = document.getElementById("minStipend");
@@ -203,7 +204,7 @@ function animateCounter(element, finalValue) {
 
 async function fetchPlacementStats() {
   try {
-    const res = await fetch("http://localhost:5000/api/site_stats");
+    const res = await fetch(`${API_BASE}/api/site_stats`);
     return await res.json();
   } catch (err) {
     console.error("Stats fetch failed:", err);
@@ -259,7 +260,7 @@ observer.observe(document.querySelector(".placement-support-section"));
 /*------hiring partners------- */
 async function loadPartners() {
   try {
-    const res = await fetch("http://localhost:5000/api/partners");
+    const res = await fetch(`${API_BASE}/api/partners`);
     const partners = await res.json();
 
     const carousel = document.getElementById("partnersCarousel");
@@ -324,7 +325,7 @@ let currentStory = 0;
 
 async function loadSuccessStories() {
   try {
-    const res = await fetch("http://localhost:5000/api/success_stories");
+    const res = await fetch(`${API_BASE}/api/success_stories`);
     stories = await res.json();
     updateStory();
   } catch (err) {
@@ -393,7 +394,7 @@ function animateCount(element, finalValue) {
 }
 
 async function loadAchievements() {
-  const res = await fetch("http://localhost:5000/api/site_stats");
+  const res = await fetch(`${API_BASE}/api/site_stats`);
   const data = await res.json();
 
   const alumni = document.getElementById("alumniCounter");
@@ -425,7 +426,7 @@ achievementObserver.observe(document.getElementById("achievementSection"));
 
 /*-----------------FAQS section -------------- */
 async function loadFaqs() {
-  const res = await fetch("http://localhost:5000/api/faqs");
+  const res = await fetch(`${API_BASE}/api/faqs`);
   const faqs = await res.json();
 
   const faqContainer = document.getElementById("faqContainer");
@@ -495,7 +496,7 @@ async function handleRegistration(event) {
   const formData = new FormData(form);
 
   try {
-    const res = await fetch("http://localhost:5000/api/registrations", {
+    const res = await fetch(`${API_BASE}/api/registrations`, {
       method: "POST",
       body: formData,
     });
@@ -541,7 +542,7 @@ async function handleExpertConsultation(event) {
   const meeting_time = form.timeSlot.value;
 
   try {
-    const res = await fetch("http://localhost:5000/api/consultations", {
+    const res = await fetch(`${API_BASE}/api/consultations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
