@@ -115,15 +115,20 @@
   background: #1e40af;
 }
 
-/* thin custom scrollbar on modal */
+/* thin custom scrollbar on modal 
 #courseModal::-webkit-scrollbar,
 #deleteConfirmModal::-webkit-scrollbar {
-  width: 8px;
+  display: none;
+}*/
+
+#courseModal::-webkit-scrollbar,
+#courseModal *::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Edge, Safari */
 }
-#courseModal::-webkit-scrollbar-thumb,
-#deleteConfirmModal::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
+
+#storyModal::-webkit-scrollbar,
+#storyModal *::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Edge, Safari */
 }
 
 /* table row separator similar to screenshot */

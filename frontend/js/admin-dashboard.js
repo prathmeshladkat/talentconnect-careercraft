@@ -408,7 +408,7 @@ async function loadSuccessStories() {
 
       row.innerHTML = `
         <div class="flex gap-4 items-center">
-          <img src="${s.image_url}" class="w-16 h-16 rounded-lg object-cover border border-gray-600" />
+          <img src="${s.image}" class="w-16 h-16 rounded-lg object-cover border border-gray-600" />
           <div class="text-gray-300 font-medium">
             ${s.name} – ${s.role} at ${s.company} (⭐ ${s.rating})
             <p class="text-gray-400 text-sm italic mt-1 max-w-[600px]">"${s.quote}"</p>
