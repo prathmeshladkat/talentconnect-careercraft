@@ -130,6 +130,49 @@ async function loadCareerStats() {
 // call when page loads
 loadCareerStats();
 
+// ----------------------------
+// 🔥 Scroll-trigger number animation
+// ----------------------------
+function animateStat(element, final, formatter) {
+  let current = 0;
+  const increment = final / 80;
+
+  function update() {
+    current += increment;
+    if (current < final) {
+      element.innerText = formatter(current);
+      requestAnimationFrame(update);
+    } else {
+      element.innerText = formatter(final);
+    }
+  }
+  update();
+}
+
+let statsAnimated = false;
+
+const statsObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting && !statsAnimated) {
+    statsAnimated = true;
+
+    const successRate = document.getElementById("successRate");
+    const placementTime = document.getElementById("placementTime");
+    const avgSalary = document.getElementById("avgSalary");
+
+    // extract numeric values from current API text
+    const sr = parseFloat(successRate.innerText);
+    const pt = parseFloat(placementTime.innerText);
+    const sal = parseFloat(avgSalary.innerText);
+
+    animateStat(successRate, sr, (v) => Math.floor(v) + "%");
+    animateStat(placementTime, pt, (v) => Math.floor(v) + " week");
+    animateStat(avgSalary, sal, (v) => v.toFixed(1) + "L");
+  }
+});
+
+// observe section
+statsObserver.observe(document.querySelector(".journey-stats"));
+
 /*-------------------internship section ------------------- */
 function animateCounter(element, endValue, duration = 1200) {
   let start = 0;
@@ -173,6 +216,18 @@ async function loadStipendDetails() {
 
 // call on page load
 loadStipendDetails();
+
+// 🔥 Trigger only when section is visible
+// ------------------------------
+let internshipAnimated = false;
+
+const internshipObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting && !internshipAnimated) {
+    internshipAnimated = true;
+    loadStipendDetails();
+    internshipObserver.disconnect();
+  }
+});
 
 /*-----------------placment section--------------- */
 function animateCounter(element, finalValue) {
@@ -441,7 +496,8 @@ async function loadFaqs() {
         <span>${faq.question}</span>
         <span class="faq-toggle">+</span>
       </div>
-      <div class="faq-answer">${faq.answer}</div>
+      <div class="faq-answer">${faq.answer.replace(/\n/g, "<br>")}</div>
+
     `;
 
     faqContainer.appendChild(faqItem);
