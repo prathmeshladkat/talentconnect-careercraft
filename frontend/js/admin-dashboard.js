@@ -113,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(id ? `${API_BASE}/${id}` : API_BASE, {
         method: id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
@@ -131,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(`${API_BASE}/${deletingCourseId}`, {
         method: "DELETE",
+        credentials: "include",
       });
       if (!res.ok) throw new Error();
       await loadCourses();
@@ -185,7 +187,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // fetch + fallback + icon injection
   async function loadCourses() {
     try {
-      const res = await fetch(API_BASE);
+      const res = await fetch(API_BASE, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error();
       courses = await res.json();
       if (!Array.isArray(courses)) courses = [];
@@ -263,7 +267,8 @@ let editingPartnerId = null;
 // Load partners on page load
 async function loadPartners() {
   try {
-    const res = await fetch(PARTNERS_API);
+    const res = await fetch(PARTNERS_API, { credentials: "include" });
+
     const data = await res.json();
     partnersData = data;
     console.log("API response: ", data);
@@ -344,6 +349,7 @@ document.getElementById("savePartnerBtn").onclick = async () => {
   await fetch(url, {
     method: editingPartnerId ? "PUT" : "POST",
     body: form,
+    credentials: "include",
   });
 
   closePartnerModal();
@@ -363,7 +369,10 @@ function closeDeletePartnerModal() {
 }
 
 document.getElementById("confirmDeletePartnerBtn").onclick = async () => {
-  await fetch(`${PARTNERS_API}/${deletePartnerId}`, { method: "DELETE" });
+  await fetch(`${PARTNERS_API}/${deletePartnerId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
 
   closeDeletePartnerModal();
   showToast("Partner Deleted !", "success");
@@ -401,7 +410,8 @@ function updateStarUI(n) {
 /* Load Stories */
 async function loadSuccessStories() {
   try {
-    const res = await fetch(SUCCESS_API);
+    const res = await fetch(SUCCESS_API, { credentials: "include" });
+
     const stories = await res.json();
 
     if (!stories.length) {
@@ -453,7 +463,7 @@ document.getElementById("closeStoryModal").onclick = () =>
 
 /* Open Edit */
 async function openEditStory(id) {
-  const res = await fetch(`${SUCCESS_API}/${id}`);
+  const res = await fetch(`${SUCCESS_API}/${id}`, { credentials: "include" });
   const s = await res.json();
 
   activeStoryId = id;
@@ -482,6 +492,7 @@ storyForm.onsubmit = async (e) => {
   await fetch(activeStoryId ? `${SUCCESS_API}/${activeStoryId}` : SUCCESS_API, {
     method: activeStoryId ? "PUT" : "POST",
     body: fd,
+    credentials: "include",
   });
 
   storyModal.classList.add("hidden");
@@ -492,7 +503,10 @@ storyForm.onsubmit = async (e) => {
 /* DELETE */
 async function deleteStory(id) {
   if (!confirm("Delete this story?")) return;
-  await fetch(`${SUCCESS_API}/${id}`, { method: "DELETE" });
+  await fetch(`${SUCCESS_API}/${id}`, {
+    credentials: "include",
+    method: "DELETE",
+  });
   showToast("Story Deleted!", "success");
   loadSuccessStories();
 }
@@ -510,7 +524,10 @@ const totalUsersBadge = document.getElementById("totalUsersBadge");
 /* FETCH USERS */
 async function loadUsers() {
   try {
-    const res = await fetch(USERS_API);
+    const res = await fetch(USERS_API, {
+      credentials: "include",
+    });
+
     const users = await res.json();
 
     totalUsersBadge.innerText = users.length;
@@ -575,7 +592,10 @@ function formatDate(dateStr) {
 /* LOAD MEETINGS */
 async function loadMeetings() {
   try {
-    const res = await fetch(MEETINGS_API);
+    const res = await fetch(MEETINGS_API, {
+      credentials: "include",
+    });
+
     const data = await res.json();
 
     totalMeetings.textContent = data.length;
@@ -644,6 +664,7 @@ async function updateMeetingStatus(id, status) {
     await fetch(`${MEETINGS_API}/${id}/status`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ status }),
     });
     loadMeetings();
@@ -663,7 +684,10 @@ const OVERVIEW_STATS_API = `${API_BASE}/api/overview/stats`;
 
 async function loadOverviewStats() {
   try {
-    const res = await fetch(OVERVIEW_STATS_API);
+    const res = await fetch(OVERVIEW_STATS_API, {
+      credentials: "include",
+    });
+
     if (!res.ok) throw new Error("Failed to fetch overview stats");
 
     const data = await res.json();
@@ -721,9 +745,11 @@ async function handleAdminLogin(event) {
   submitBtn.disabled = true;
   submitBtn.innerText = "Verifying...";
 
+  //chahnges made 3-12-25
   try {
     const res = await fetch(`${API_BASE}/api/admins/login`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
@@ -807,6 +833,7 @@ async function saveStats() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      credentials: "include",
     });
 
     const data = await res.json();
@@ -849,7 +876,10 @@ async function openSection(sectionId) {
 
 async function loadSiteStats() {
   try {
-    const res = await fetch(SITE_STATS_API);
+    const res = await fetch(SITE_STATS_API, {
+      credentials: "include",
+    });
+
     if (!res.ok) throw new Error("Failed to fetch site stats");
 
     const data = await res.json();
