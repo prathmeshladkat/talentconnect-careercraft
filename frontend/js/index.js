@@ -1,5 +1,6 @@
 /* ---------- CONFIG ---------- */
-const API_BASE = "https://talentconnect-careercraft.onrender.com";
+//const API_BASE = "https://talentconnect-careercraft.onrender.com";
+const API_BASE = "http://localhost:5000";
 
 /*-------------program highlights------------ */
 const SITE_STATS_API = `${API_BASE}/api/site_stats`;
@@ -65,12 +66,20 @@ async function loadCoursesLanding() {
     grid.innerHTML = "";
 
     courses.forEach((c) => {
+      // 🔥 limit description to 10 words
+      let shortDesc = c.description.split(" ");
+      if (shortDesc.length > 10) {
+        shortDesc = shortDesc.slice(0, 10).join(" ") + " ...";
+      } else {
+        shortDesc = c.description;
+      }
+
       const card = document.createElement("div");
       card.className = "course-card";
       card.innerHTML = `
         <span class="icon">${c.icon}</span>
         <h3>${c.title}</h3>
-        <p>${c.description}</p>
+        <p>${shortDesc}</p>
         <div class="course-meta">
           <span>${c.duration}</span>
           <span>${c.level}</span>
@@ -79,7 +88,7 @@ async function loadCoursesLanding() {
       grid.appendChild(card);
     });
 
-    /* Append final special CTA card */
+    // CTA card stays unchanged
     const last = document.createElement("div");
     last.className = "special-card";
     last.innerHTML = `
@@ -638,5 +647,12 @@ async function handleExpertConsultation(event) {
     messageBox.classList.add("text-red-400");
     messageBox.innerText = "Network error — please try again.";
     console.error("Consultation error:", error);
+  }
+}
+
+function scrollToCourses() {
+  const section = document.getElementById("coursesSectionLanding");
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth" });
   }
 }

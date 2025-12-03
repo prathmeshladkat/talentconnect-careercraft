@@ -308,7 +308,7 @@
                   <label class="form-label">Program Duration</label>
                   <input
                     type="text"
-                    id="programDuration"
+                    id="program_duration"
                     class="stat-input"
                     value="4 Months"
                   />
@@ -318,7 +318,7 @@
                   <label class="form-label">Course Tracks</label>
                   <input
                     type="text"
-                    id="courseTracks"
+                    id="course_tracks"
                     class="stat-input"
                     value="8+"
                   />
@@ -328,7 +328,8 @@
                   <label class="form-label">Placement Rate</label>
                   <input
                     type="text"
-                    id="industryMentors"
+                    id="industry_mentors"
+                    id="placement_rate"
                     class="stat-input"
                     value="100%"
                   />
@@ -337,7 +338,7 @@
                   <label class="form-label">Industry Mentors</label>
                   <input
                     type="text"
-                    id="industryMentors"
+                    id="industry_mentors"
                     class="stat-input"
                     value="50+"
                   />
@@ -354,6 +355,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="minStipend"
+                    id="min_stipend"
                     value="8k"
                     class="form-input"
                   />
@@ -363,6 +365,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="maxStipend"
+                    id="max_stipend"
                     value="35K"
                     class="form-input"
                   />
@@ -372,6 +375,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="avgPackage"
+                    id="avg_package"
                     value="7.5L"
                     class="form-input"
                   />
@@ -381,6 +385,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="highestPackage"
+                    id="highest_package"
                     value="45L"
                     class="form-input"
                   />
@@ -390,6 +395,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="avgStartingSalary"
+                    id="average_starting_salary"
                     value="7.5L"
                     class="form-input"
                   />
@@ -399,6 +405,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="internshipStipend"
+                    id="internship_stipend"
                     value="8K–35K"
                     class="form-input"
                   />
@@ -415,6 +422,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="successRate"
+                    id="success_rate"
                     value="95%"
                     class="form-input"
                   />
@@ -424,6 +432,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="jobPlacementGuarantee"
+                    id="job_placement_guarantee"
                     value="100%"
                     class="form-input"
                   />
@@ -433,6 +442,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="internshipPlacement"
+                    id="internship_placement"
                     value="100%"
                     class="form-input"
                   />
@@ -442,6 +452,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="convertFulltime"
+                    id="convert_fulltime"
                     value="85%"
                     class="form-input"
                   />
@@ -450,7 +461,8 @@
                   <label class="form-label">Avg. Job Placment Time</label>
                   <input
                     oninput="updateStatsField(event)"
-                    name="convertFulltime"
+                    name="AvgJobPlacmentTime"
+                    id="avg_job_placement_time"
                     value="85%"
                     class="form-input"
                   />
@@ -459,7 +471,8 @@
                   <label class="form-label">Average Job Rating</label>
                   <input
                     oninput="updateStatsField(event)"
-                    name="convertFulltime"
+                    name="AvgJobRating"
+                    id="average_rating"
                     value="85%"
                     class="form-input"
                   />
@@ -476,6 +489,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="alumniNetwork"
+                    id="alumni_network"
                     value="500+"
                     class="form-input"
                   />
@@ -485,6 +499,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="activeAlumniNetwork"
+                    id="active_alumni_network"
                     value="500+"
                     class="form-input"
                   />
@@ -494,6 +509,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="partnerCompanies"
+                    id="partner_companies"
                     value="400+"
                     class="form-input"
                   />
@@ -503,6 +519,7 @@
                   <input
                     oninput="updateStatsField(event)"
                     name="handsOnProjects"
+                    id="hands_on_projects"
                     value="30+"
                     class="form-input"
                   />
@@ -510,7 +527,7 @@
               </div>
 
               <div class="flex justify-end mt-10">
-                <button class="save-btn">
+                <button class="save-btn" onclick="saveStats()">
                   <i class="fas fa-save mr-2"></i> Save All Changes
                 </button>
               </div>
@@ -643,6 +660,7 @@
                       id="course_duration"
                       name="duration"
                       class="w-full p-3 bg-gray-700/40 border border-gray-600 rounded-lg text-white"
+                      placeholder="4 Months"
                     />
                   </div>
                   <div>

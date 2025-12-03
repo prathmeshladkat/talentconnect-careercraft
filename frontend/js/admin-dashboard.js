@@ -1,6 +1,7 @@
 // Section navigation
 
-const API_BASE = "https://talentconnect-careercraft.onrender.com";
+//const API_BASE = "https://talentconnect-careercraft.onrender.com";
+const API_BASE = "http://localhost:5000";
 
 function showSection(section) {
   const sections = [
@@ -50,6 +51,7 @@ function showSection(section) {
   if (section === "success") loadSuccessStories();
   if (section === "users") loadUsers();
   if (section === "meetings") loadMeetings();
+  if (section === "siteStats") loadSiteStats();
 }
 
 // convert "siteStats" → "SiteStats"
@@ -115,9 +117,11 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       if (!res.ok) throw new Error();
       await loadCourses();
+      showToast("Course Added!", "success");
       closeCourseModal();
     } catch {
       alert("Save failed — check backend.");
+      showToast("Course Not Added!", "error");
     }
   });
 
@@ -131,8 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) throw new Error();
       await loadCourses();
       closeDeleteModal();
+      showToast("Course Deleted!", "success");
     } catch {
       alert("Delete failed.");
+      showToast("Course Deletion Failed!", "error");
     }
   };
 
@@ -341,6 +347,7 @@ document.getElementById("savePartnerBtn").onclick = async () => {
   });
 
   closePartnerModal();
+  showToast("Partner Added!", "success");
   loadPartners();
 };
 
@@ -357,7 +364,9 @@ function closeDeletePartnerModal() {
 
 document.getElementById("confirmDeletePartnerBtn").onclick = async () => {
   await fetch(`${PARTNERS_API}/${deletePartnerId}`, { method: "DELETE" });
+
   closeDeletePartnerModal();
+  showToast("Partner Deleted !", "success");
   loadPartners();
 };
 
@@ -476,6 +485,7 @@ storyForm.onsubmit = async (e) => {
   });
 
   storyModal.classList.add("hidden");
+  showToast("Story Added!", "success");
   loadSuccessStories();
 };
 
@@ -483,6 +493,7 @@ storyForm.onsubmit = async (e) => {
 async function deleteStory(id) {
   if (!confirm("Delete this story?")) return;
   await fetch(`${SUCCESS_API}/${id}`, { method: "DELETE" });
+  showToast("Story Deleted!", "success");
   loadSuccessStories();
 }
 
@@ -773,4 +784,83 @@ function showAdminDashboard() {
   // show stats immediately after dashboard is visible
   loadOverviewStats();
   updateLastUpdatedTime();
+}
+
+async function saveStats() {
+  const apiURL = "http://localhost:5000/api/site_stats";
+
+  // Collect all inputs inside siteStatsSection
+  const inputs = document.querySelectorAll("#siteStatsSection input");
+
+  const payload = {};
+  inputs.forEach((input) => {
+    if (input.id && input.value.trim() !== "") {
+      payload[input.id] = input.value.trim();
+    }
+  });
+
+  console.log("sending payload:", payload);
+
+  try {
+    const res = await fetch(apiURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    console.log("Response:", data);
+
+    if (res.ok) {
+      alert("Saved Successfully!");
+    } else {
+      alert("Failed: " + data.error);
+    }
+  } catch (err) {
+    console.error("Save error:", err);
+    alert("Something went wrong");
+  }
+}
+
+/*-------------------site stats get call----------- */
+async function openSection(sectionId) {
+  // Hide all sections
+  document
+    .querySelectorAll("section")
+    .forEach((sec) => sec.classList.add("hidden"));
+
+  // Show selected section
+  document.getElementById(sectionId).classList.remove("hidden");
+
+  // Highlight sidebar
+  document
+    .querySelectorAll(".sidebar-item")
+    .forEach((i) => i.classList.remove("active"));
+  document
+    .querySelector(`#nav-${sectionId.replace("Section", "").toLowerCase()}`)
+    .classList.add("active");
+
+  // If Site Stats tab opened → get fresh data
+  if (sectionId === "siteStatsSection") {
+    loadSiteStats();
+  }
+}
+
+async function loadSiteStats() {
+  try {
+    const res = await fetch("http://localhost:5000/api/site_stats");
+    if (!res.ok) throw new Error("Failed to fetch site stats");
+
+    const data = await res.json();
+
+    // Loop and fill all inputs whose id matches API keys
+    Object.keys(data).forEach((key) => {
+      const input = document.getElementById(key);
+      if (input) input.value = data[key];
+    });
+
+    console.log("Site stats loaded");
+  } catch (err) {
+    console.error("Site stats GET error:", err);
+  }
 }
