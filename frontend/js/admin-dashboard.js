@@ -1,7 +1,7 @@
 // Section navigation
 
-//const API_BASE = "https://talentconnect-careercraft.onrender.com";
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://talentconnect-careercraft.onrender.com";
+//const API_BASE = "http://localhost:5000";
 
 function showSection(section) {
   const sections = [
@@ -786,6 +786,7 @@ function showAdminDashboard() {
   updateLastUpdatedTime();
 }
 
+const SITE_STATS_API = `${API_BASE}/api/site_stats`;
 async function saveStats() {
   const apiURL = "http://localhost:5000/api/site_stats";
 
@@ -802,7 +803,7 @@ async function saveStats() {
   console.log("sending payload:", payload);
 
   try {
-    const res = await fetch(apiURL, {
+    const res = await fetch(SITE_STATS_API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -848,7 +849,7 @@ async function openSection(sectionId) {
 
 async function loadSiteStats() {
   try {
-    const res = await fetch("http://localhost:5000/api/site_stats");
+    const res = await fetch(SITE_STATS_API);
     if (!res.ok) throw new Error("Failed to fetch site stats");
 
     const data = await res.json();

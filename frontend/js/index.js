@@ -1,6 +1,6 @@
 /* ---------- CONFIG ---------- */
-//const API_BASE = "https://talentconnect-careercraft.onrender.com";
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://talentconnect-careercraft.onrender.com";
+//const API_BASE = "http://localhost:5000";
 
 /*-------------program highlights------------ */
 const SITE_STATS_API = `${API_BASE}/api/site_stats`;
