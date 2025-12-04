@@ -840,9 +840,9 @@ async function saveStats() {
     console.log("Response:", data);
 
     if (res.ok) {
-      alert("Saved Successfully!");
+      showToast("Stats Saved!", "success");
     } else {
-      alert("Failed: " + data.error);
+      showToast("Something went wrong. Try again!", "error");
     }
   } catch (err) {
     console.error("Save error:", err);
