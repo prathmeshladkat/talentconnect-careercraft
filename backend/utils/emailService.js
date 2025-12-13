@@ -50,7 +50,7 @@ export const sendConsultationConfirmationEmail = async (userDetails) => {
         email: process.env.EMAIL_FROM,
         name: 'TalentConnect'
       },
-      subject: 'Consultation Confirmation – CareerCraft Expert Session',
+      subject: 'Consultation Confirmation – Careerkraft Expert Session',
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <h2>Your Consultation is Confirmed!</h2>
@@ -199,19 +199,19 @@ export const sendWelcomeEmail = async (userDetails) => {
       to: userDetails.email,
       from: {
         email: process.env.EMAIL_FROM,
-        name: 'TalentConnect CareerCraft'
+        name: 'TalentConnect Careerkraft'
       },
-      subject: 'Welcome to TalentConnect CareerCraft – Your Journey Begins 🚀',
+      subject: 'Welcome to TalentConnect Careerkraft – Your Journey Begins 🚀',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #2563eb; margin-bottom: 10px;">Welcome to TalentConnect CareerCraft!</h1>
+            <h1 style="color: #2563eb; margin-bottom: 10px;">Welcome to TalentConnect Careerkraft!</h1>
             <p style="font-size: 20px; color: #4b5563;">Your Journey Begins 🚀</p>
           </div>
           
           <p>Dear ${userDetails.full_name || 'Valued User'},</p>
           
-          <p>We are excited to welcome you to the <strong>TalentConnect CareerCraft Program!</strong> 🎉</p>
+          <p>We are excited to welcome you to the <strong>TalentConnect Careerkraft Program!</strong> 🎉</p>
           
           <p>You've successfully registered for your chosen course, and your journey with us will follow this structured path:</p>
           
@@ -248,11 +248,11 @@ export const sendWelcomeEmail = async (userDetails) => {
           </div>
         </div>
       `,
-      text: `Welcome to TalentConnect CareerCraft – Your Journey Begins 🚀
+      text: `Welcome to TalentConnect Careerkraft – Your Journey Begins 🚀
 
 Dear ${userDetails.full_name || 'Valued User'},
 
-We are excited to welcome you to the TalentConnect CareerCraft Program! 🎉
+We are excited to welcome you to the TalentConnect Careerkraft Program! 🎉
 
 You've successfully registered for your chosen course, and your journey with us will follow this structured path:
 
