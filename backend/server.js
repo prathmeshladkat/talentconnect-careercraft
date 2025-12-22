@@ -25,7 +25,10 @@ const PORT = process.env.PORT || 5000;
 
 /* ---------------------- CORS ---------------------- */
 const allowedOrigins = [
-  "https://talentconnects.onrender.com",
+ "https://admin.careerkrafter.in",
+   "https://careerkrafter.in",
+  "https://www.careerkrafter.in", 
+"https://talentconnects.onrender.com",
   "https://talentconnect-fd.onrender.com",
   "http://localhost:3000",
   "http://localhost:5000",
