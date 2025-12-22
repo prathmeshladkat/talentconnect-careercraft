@@ -1,6 +1,7 @@
 // Section navigation
 
-const API_BASE = "https://talentconnect-careercraft.onrender.com";
+//const API_BASE = "https://talentconnect-careercraft.onrender.com";
+const API_BASE = " https://api.careerkrafter.in";
 //const API_BASE = "http://localhost:5000";
 
 function showSection(section) {
@@ -67,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
 (() => {
-  const API_BASE = "https://talentconnect-careercraft.onrender.com/api/courses";
+  const API_BASE = " https://api.careerkrafter.in/api/courses";
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
