@@ -92,6 +92,7 @@ async function loadCoursesLanding() {
     // CTA card stays unchanged
     const last = document.createElement("div");
     last.className = "special-card";
+    last.id = "careerGuidanceCard";
     last.innerHTML = `
       <img src="https://img.icons8.com/color/96/goal.png">
       <h3>Not sure which track to choose?</h3>
@@ -655,5 +656,27 @@ function scrollToCourses() {
   const section = document.getElementById("coursesSectionLanding");
   if (section) {
     section.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+function scrollToCareerGuidance() {
+  const el = document.getElementById("careerGuidanceCard");
+
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
+  } else {
+    // wait until courses load
+    const observer = new MutationObserver(() => {
+      const target = document.getElementById("careerGuidanceCard");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.getElementById("coursesGrid"), {
+      childList: true,
+      subtree: true
+    });
   }
 }
