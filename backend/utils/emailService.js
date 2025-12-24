@@ -273,7 +273,7 @@ We'll share your batch start date, orientation details, and joining instructions
 
 At TalentConnect, we believe in not just teaching but unlocking your potential and building a bridge from learning to earning.
 
-For any queries, feel free to reach us at support@talentconnect.com or call us at +1 (555) 123-4567.
+For any queries, feel free to reach us at support@talentconnect.com or call us at +91 8431472672.
 
 We look forward to seeing you grow with us!
 
