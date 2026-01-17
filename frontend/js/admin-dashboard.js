@@ -2,7 +2,7 @@
 
 //const API_BASE = "https://talentconnect-careercraft.onrender.com";
 //const API_BASE = "https://api.careerkrafter.in";
-const API_BASE = "http://13.232.155.83/";
+const API_BASE = "/api";
 
 function showSection(section) {
   const sections = [
