@@ -1,8 +1,8 @@
 // Section navigation
 
 //const API_BASE = "https://talentconnect-careercraft.onrender.com";
-const API_BASE = "https://api.careerkrafter.in";
-//const API_BASE = "http://localhost:5000";
+//const API_BASE = "https://api.careerkrafter.in";
+const API_BASE = "http://localhost/api";
 
 function showSection(section) {
   const sections = [
