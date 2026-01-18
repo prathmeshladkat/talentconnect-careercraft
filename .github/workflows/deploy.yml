@@ -31,6 +31,8 @@ jobs:
           script: |
             cd /var/www/talentconnect-careercraft
             git pull origin test
+            sudo nginx -t
+            sudo systemctl reload nginx
             cd backend
             npm install
             pm2 restart talentconnect-api || pm2 start server.js --name talentconnect-api
