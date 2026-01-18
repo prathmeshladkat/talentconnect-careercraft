@@ -34,7 +34,9 @@ const allowedOrigins = [
   "http://localhost:5000",
   "http://127.0.0.1:5500",
   "http://localhost:5501",
-  "https://talentconnect-careercraft.vercel.app", // your Vercel frontend
+  "http://13.232.155.83",
+  "https://talentconnect-careercraft.vercel.app",
+   // your Vercel frontend
 ];
 
 // ⚠ IMPORTANT: 1 single CORS middleware — allow local static HTML (origin = null)
