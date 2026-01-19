@@ -21,7 +21,7 @@ import overviewRouter from "./routes/overview.js";
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 /* ---------------------- CORS ---------------------- */
 const allowedOrigins = [
