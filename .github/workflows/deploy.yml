@@ -31,6 +31,7 @@ jobs:
           script: |
             cd /var/www/talentconnect-careercraft
             git pull origin test
+            git reset --hard origin/test
            
             cd backend
             npm install
