@@ -41,7 +41,7 @@ async function loadProgramHighlights() {
     // courseEl.style.webkitBackgroundClip = 'text';
     // courseEl.style.webkitTextFillColor = 'transparent';
   } catch (err) {
-    console.warn("⚠ Using fallback for program highlights", err);
+    console.warn("⚠ Using fallback for programd highlights", err);
     document.getElementById("stat_program_duration").innerText =
       fallback.program_duration;
     document.getElementById("stat_course_tracks").innerText =
