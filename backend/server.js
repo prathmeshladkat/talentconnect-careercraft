@@ -36,6 +36,7 @@ const allowedOrigins = [
   "http://localhost:5501",
   "http://13.232.155.83",
   "http://31.97.232.215:8080",
+  "https://talentconnect-careercraft.vercel.app",
    // your Vercel frontend
 ];
 

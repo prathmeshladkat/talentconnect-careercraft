@@ -1,4 +1,4 @@
-name: Deploy to EC2 (Test)
+name: Deploy to VPS (Test)
 
 on:
   push:
@@ -13,26 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: 📦 Install dependencies
-        working-directory: backend
-        run: npm install
-
-      - name: Deploy to EC2
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /var/www/talentconnect-careercraft
-            git pull origin test
-            sudo nginx -t
-            sudo systemctl reload nginx
+            cd /var/www/careerkrafter/careerkrafter-test/talentconnect-careercraft
+            git checkout test
+            git pull 
             cd backend
             npm install
-            pm2 restart talentconnect-api || pm2 start server.js --name talentconnect-api
+            pm2 start ecosystem.config.cjs
