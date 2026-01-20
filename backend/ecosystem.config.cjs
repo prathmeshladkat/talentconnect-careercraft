@@ -8,7 +8,14 @@ module.exports = {
         PORT: 5001,
         NODE_ENV: "test",
         SENDGRID_API_KEY: "dummy"
-      }
+      },
+        // ✅ Make sure these are set
+    error_file: './logs/err.log',
+    out_file: './logs/out.log',
+    log_file: './logs/combined.log',
+    time: true,
+    merge_logs: true,
     }
+   
   ]
 };

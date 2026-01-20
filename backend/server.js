@@ -25,10 +25,10 @@ const PORT = process.env.PORT || 5000;
 
 /* ---------------------- CORS ---------------------- */
 const allowedOrigins = [
- "https://admin.careerkrafter.in",
-   "https://careerkrafter.in",
+  "https://admin.careerkrafter.in",
+  "https://careerkrafter.in",
   "https://www.careerkrafter.in", 
-"https://talentconnects.onrender.com",
+  "https://talentconnects.onrender.com",
   "https://talentconnect-fd.onrender.com",
   "http://localhost:3000",
   "http://localhost:5000",
@@ -37,14 +37,12 @@ const allowedOrigins = [
   "http://13.232.155.83",
   "http://31.97.232.215:8080",
   "https://talentconnect-careercraft.vercel.app",
-   // your Vercel frontend
 ];
 
-// ⚠ IMPORTANT: 1 single CORS middleware — allow local static HTML (origin = null)
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow localhost file:// & 127.0.0.1:5500
+      if (!origin) return callback(null, true);
       const clean = origin.replace(/\/$/, "");
       if (allowedOrigins.includes(clean)) return callback(null, true);
       console.warn("❌ Blocked by CORS →", origin);
@@ -57,8 +55,10 @@ app.use(
 );
 
 /* ---------------------- Middleware ---------------------- */
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ❌ REMOVED - Don't apply globally, it breaks multer!
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+
 app.use("/uploads", express.static("uploads"));
 
 /* ---------------------- DB Connection ---------------------- */
@@ -113,17 +113,33 @@ app.get("/api/download-cv/:userId", async (req, res) => {
   }
 });
 
+/* ---------------------- Debug Middleware ---------------------- */
+app.use('/api/courses', (req, res, next) => {
+  console.log('🔍 COURSES - Method:', req.method, 'URL:', req.url);
+  console.log('🔍 COURSES - Content-Type:', req.headers['content-type']);
+  next();
+});
+
+app.use('/api/success_stories', (req, res, next) => {
+  console.log('🔍 SUCCESS - Method:', req.method, 'URL:', req.url);
+  console.log('🔍 SUCCESS - Content-Type:', req.headers['content-type']);
+  next();
+});
+
 /* ---------------------- API Routes ---------------------- */
+// ✅ Routes with file uploads (multer handles body parsing)
 app.use("/api/courses", coursesRouter);
-app.use("/api/faqs", faqsRouter);
 app.use("/api/partners", partnersRouter);
 app.use("/api/success_stories", successStoriesRouter);
-app.use("/api/site_stats", siteStatsRouter);
-app.use("/api/registrations", registrationsRouter);
-app.use("/api/admins", adminsRouter);
-app.use("/api/users", usersRouter);
-app.use("/api/consultations", consultationsRouter);
-app.use("/api/overview", overviewRouter);
+
+// ✅ Routes that need JSON parsing
+app.use("/api/faqs", express.json(), faqsRouter);
+app.use("/api/site_stats", express.json(), siteStatsRouter);
+app.use("/api/registrations", express.json(), registrationsRouter);
+app.use("/api/admins", express.json(), adminsRouter);
+app.use("/api/users", express.json(), usersRouter);
+app.use("/api/consultations", express.json(), consultationsRouter);
+app.use("/api/overview", express.json(), overviewRouter);
 
 /* ---------------------- Health Check ---------------------- */
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
