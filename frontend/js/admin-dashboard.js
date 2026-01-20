@@ -97,69 +97,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // save course (create & update)
-    saveCourseBtn.addEventListener("click", async () => {
-      const id = fld.id.value;
-      
-      // Check if we're uploading a new file
-      const hasNewFile = fld.icon.files[0];
-      
-      try {
-        let res;
-        
-        if (hasNewFile || !id) {
-          // Use FormData if there's a new file OR if it's a new course
-          const formData = new FormData();
-          
-          if (hasNewFile) {
-            formData.append("icon", fld.icon.files[0]);
-          }
-          
-          formData.append("title", fld.title.value.trim());
-          formData.append("description", fld.description.value.trim());
-          formData.append("full_description", fld.full_description.value.trim());
-          formData.append("duration", fld.duration.value.trim());
-          formData.append("level", fld.level.value.trim());
-          formData.append("features", fld.features.value.trim());
-          
-          res = await fetch(id ? `${API_BASE}/${id}` : API_BASE, {
-            method: id ? "PUT" : "POST",
-            credentials: "include",
-            body: formData,
-          });
-        } else {
-          // Use JSON when editing without a new file
-          const jsonData = {
-            title: fld.title.value.trim(),
-            description: fld.description.value.trim(),
-            full_description: fld.full_description.value.trim(),
-            duration: fld.duration.value.trim(),
-            level: fld.level.value.trim(),
-            features: fld.features.value.trim(),
-          };
-          
-          res = await fetch(`${API_BASE}/${id}`, {
-            method: "PUT",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(jsonData),
-          });
-        }
-      
-        if (!res.ok) {
-          const errorData = await res.json();
-          console.error("Server error:", errorData);
-          throw new Error(errorData.error || "Failed to save course");
-        }
-        
-        await loadCourses();
-        showToast("Course saved successfully!", "success");
-        closeCourseModal();
-      } catch (err) {
-        console.error("Error saving course:", err);
-        showToast(err.message || "Failed to save course!", "error");
+  saveCourseBtn.addEventListener("click", async () => {
+    const id = fld.id.value;
+  
+    const formData = new FormData();
+  
+    // ✅ ALWAYS append the file field (even if empty) for multer to parse correctly
+    if (fld.icon.files[0]) {
+      formData.append("icon", fld.icon.files[0]);
+    }
+  
+    // ✅ text fields
+    formData.append("title", fld.title.value.trim());
+    formData.append("description", fld.description.value.trim());
+    formData.append("full_description", fld.full_description.value.trim());
+    formData.append("duration", fld.duration.value.trim());
+    formData.append("level", fld.level.value.trim());
+    formData.append("features", fld.features.value.trim());
+  
+    // ✅ Debug: Check what's being sent
+    console.log("📤 Sending FormData:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+  
+    try {
+      const res = await fetch(id ? `${API_BASE}/${id}` : API_BASE, {
+        method: id ? "PUT" : "POST",
+        credentials: "include",
+        body: formData,
+        // ❌ DO NOT set Content-Type header - let browser set it automatically
+      });
+    
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("❌ Server error:", errorData);
+        throw new Error(errorData.error || "Failed to save course");
       }
-    });
-
+    
+      const result = await res.json();
+      console.log("✅ Success:", result);
+      
+      await loadCourses();
+      showToast("Course saved successfully!", "success");
+      closeCourseModal();
+    } catch (err) {
+      console.error("❌ Error saving course:", err);
+      showToast(err.message || "Failed to save course!", "error");
+    }
+  });
+  
 
   // delete flow
   document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
