@@ -97,6 +97,137 @@
   max-width: 600px;
 }
 
+.modal.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+/* ===== MODAL BOX ===== */
+.modal-box {
+  position: relative;
+  margin: auto;
+  background: #0f1115;
+  color: #fff;
+  width: 90%;
+  max-width: 720px;
+  min-height: 520px;              /* 🔥 taller modal */
+  border-radius: 18px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  animation: modalScale 0.25s ease;
+}
+
+/* animation */
+@keyframes modalScale {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* close button */
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  font-size: 26px;
+  color: #bbb;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.modal-close:hover {
+  color: #fff;
+}
+
+/* ===== HEADER ===== */
+.modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* 🔥 center image */
+  text-align: center;
+  gap: 14px;
+}
+
+#modalIconWrapper {
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* cloudinary image */
+.modal-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.modal-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 16px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.modal-emoji {
+  font-size: 64px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* title */
+#modalTitle {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* ===== DESCRIPTION ===== */
+#modalDescription {
+  color: #cbd5e1;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* ===== META ===== */
+.modal-meta {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* ===== FEATURES ===== */
+#modalFeatures {
+  display: flex;              /* 🔥 side by side */
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+#modalFeatures li {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+
 .fade-in {
   opacity: 0;
   transform: translateY(20px);
@@ -404,6 +535,8 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(0);
+  align-items: center;
+  justify-content: center;
 }
 .course-card:hover {
   transform: translateY(-8px) scale(1.02);
