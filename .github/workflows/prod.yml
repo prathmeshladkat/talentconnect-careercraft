@@ -27,4 +27,4 @@ jobs:
 
             cd backend
             npm install 
-            pm2 restart careerkrafter-talentconnect || pm2 start careerkrafter-talentconnect 
+            pm2 restart careerkrafter-api || pm2 start careerkrafter-api 
