@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
 (() => {
-  const API_BASE = `${API_BASE}/api/courses`;
+  const API_BASE = "http://31.97.232.215:5001/api/courses";
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
