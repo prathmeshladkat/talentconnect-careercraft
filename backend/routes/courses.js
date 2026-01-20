@@ -44,9 +44,7 @@ router.get('/:id', async (req, res) => {
 // POST create course
 router.post('/', upload.single('icon'), async (req, res) => {
   try {
-    console.log("📥 POST Request Body:", req.body);
-    console.log("📁 POST Request File:", req.file);
-    console.log("📋 Headers:", req.headers);
+    
 
     const { title, description, full_description, duration, level, features } = req.body;
 
@@ -92,7 +90,7 @@ router.post('/', upload.single('icon'), async (req, res) => {
       [iconUrl, title, description || '', full_description || '', duration || '', level || '', featuresString]
     );
 
-    console.log("✅ Course created successfully:", result.insertId);
+    
     res.status(201).json({ 
       message: 'Course created!', 
       id: result.insertId, 
@@ -108,11 +106,7 @@ router.post('/', upload.single('icon'), async (req, res) => {
 // PUT update course
 router.put('/:id', upload.single('icon'), async (req, res) => {
   try {
-    console.log("📥 PUT Request Body:", req.body);
-    console.log("📁 PUT Request File:", req.file);
-    console.log("🆔 Course ID:", req.params.id);
-    console.log("📋 Headers:", req.headers);
-
+    
     const { title, description, full_description, duration, level, features } = req.body;
 
     // Validate title

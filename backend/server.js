@@ -114,17 +114,7 @@ app.get("/api/download-cv/:userId", async (req, res) => {
 });
 
 /* ---------------------- Debug Middleware ---------------------- */
-app.use('/api/courses', (req, res, next) => {
-  console.log('🔍 COURSES - Method:', req.method, 'URL:', req.url);
-  console.log('🔍 COURSES - Content-Type:', req.headers['content-type']);
-  next();
-});
 
-app.use('/api/success_stories', (req, res, next) => {
-  console.log('🔍 SUCCESS - Method:', req.method, 'URL:', req.url);
-  console.log('🔍 SUCCESS - Content-Type:', req.headers['content-type']);
-  next();
-});
 
 /* ---------------------- API Routes ---------------------- */
 // ✅ Routes with file uploads (multer handles body parsing)
