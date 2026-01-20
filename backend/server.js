@@ -23,36 +23,39 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-/* ---------------------- CORS ---------------------- */
+
+
 const allowedOrigins = [
   "https://admin.careerkrafter.in",
   "https://careerkrafter.in",
-  "https://www.careerkrafter.in", 
-  "https://talentconnects.onrender.com",
-  "https://talentconnect-fd.onrender.com",
-  "http://localhost:3000",
-  "http://localhost:5000",
-  "http://127.0.0.1:5500",
-  "http://localhost:5501",
-  "http://13.232.155.83",
+  "https://www.careerkrafter.in",
   "http://31.97.232.215:9090",
-  "https://talentconnect-careercraft.vercel.app",
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      const clean = origin.replace(/\/$/, "");
-      if (allowedOrigins.includes(clean)) return callback(null, true);
-      console.warn("❌ Blocked by CORS →", origin);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
+  }
+
+  // ✅ CRITICAL: handle preflight here
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
 
 /* ---------------------- Middleware ---------------------- */
 // ❌ REMOVED - Don't apply globally, it breaks multer!
