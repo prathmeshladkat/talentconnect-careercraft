@@ -1,0 +1,30 @@
+name: Deploy to VPS (Prod)
+
+on:
+  push:
+    branches:
+      - hostinger-prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /var/www/careerkrafter/talentconnect-careercraft
+            git checkout hostinger-prod
+            git pull 
+
+            cd backend
+            npm install 
+            pm2 restart careerkrafter-talentconnect || pm2 start careerkrafter-talentconnect 
