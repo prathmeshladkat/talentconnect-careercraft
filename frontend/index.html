@@ -52,39 +52,47 @@
 <body class="min-h-screen bg-gray-900 text-white">
     <!-- Navigation -->   
     <nav class="fixed top-0 w-full bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 z-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+        
+          <!-- Logo -->
+          <a href="#" class="flex items-center space-x-1 group">
+            <img
+              src="./assets/logo.png"
+              alt="Careerkrafter Logo"
+              class="h-14 md:h-16 w-auto object-contain"
+            />
+          
+            <span
+              class="text-2xl md:text-3xl font-bold tracking-tight text-green-400
+                     group-hover:text-green-300 transition"
+            >
+              Careerkrafter
+            </span>
+          </a>
 
-      <!-- Logo -->
-      <a href="#" class="flex items-center space-x-2 group">
-        <div class="text-2xl font-bold tracking-tight">
-          <span class="text-blue-400 group-hover:text-blue-300 transition">TalentConnect</span>
-          <span class="text-green-400 ml-1 group-hover:text-green-300 transition">Careerkraft</span>
+
+          <!-- Nav Links -->
+          <div class="hidden md:flex items-center gap-2">
+            <a href="#learn" class="nav-pill">Learn</a>
+            <a href="#build" class="nav-pill">Build</a>
+            <a href="#launch" class="nav-pill">Launch</a>
+            <a href="#internship" class="nav-pill">Intern</a>
+            <a href="#get-hired" class="nav-pill">Get Hired</a>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center space-x-3">
+            <button onclick="showRegistrationModal()" class="primary-btn">
+              Register Now
+            </button>
+            <!--<a href="admin-dashboard.html" class="secondary-btn">
+              Admin Panel
+            </a>-->
+          </div>
         </div>
-      </a>
-
-      <!-- Nav Links -->
-      <div class="hidden md:flex items-center gap-2">
-        <a href="#learn" class="nav-pill">Learn</a>
-        <a href="#build" class="nav-pill">Build</a>
-        <a href="#launch" class="nav-pill">Launch</a>
-        <a href="#internship" class="nav-pill">Intern</a>
-        <a href="#get-hired" class="nav-pill">Get Hired</a>
       </div>
-
-      <!-- Action Buttons -->
-      <div class="flex items-center space-x-3">
-        <button onclick="showRegistrationModal()" class="primary-btn">
-          Register Now
-        </button>
-        <!--<a href="admin-dashboard.html" class="secondary-btn">
-          Admin Panel
-        </a>-->
-      </div>
-
-    </div>
-  </div>
-</nav>
+    </nav>
 
 
     <!-- Main Content -->
@@ -93,16 +101,14 @@
         <section class="pt-20 pb-16 px-4 hero-section">
             <div class="max-w-6xl mx-auto text-center">
                 <h1 class="text-5xl md:text-7xl font-bold mb-8">
-                    <span class="text-blue-400">TalentConnect</span>
-                    <span class="text-green-400 ml-4">Careerkraft</span>
+                    <span class="text-blue-400">Become Job Ready in 90 Days</span>
+                    
               
                 <h2 class="text-2xl md:text-3xl mb-8 text-gray-300" id="tagline">
                     <!-- Learn. Build. Launch. Intern. Get Hired. -->
                 </h2>
                 <p class="text-lg text-gray-400 mb-12 max-w-4xl mx-auto">
-                    An innovation-driven platform dedicated to bridging the gap between academic learning and professional success. 
-                    We empower students and career professionals with the practical skills and industry connections needed to thrive 
-                    in today's rapidly evolving tech landscape.
+                    Bridging students/professional to jobs with real-world skills and industry exposure.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button onclick="showRegistrationModal()" class="bg-blue-600 hover:bg-blue-900 px-8 py-4 rounded-lg text-lg font-semibold transition-colors pulse">
@@ -172,14 +178,7 @@
         <!-- About Section -->
         <section class="about-section">
           <div class="container">
-              <div class="about-header">
-                  <div class="about-icon">🚀</div>
-                  <h2>About TalentConnect</h2>
-                  <p>
-                      TalentConnect is an innovation-driven platform dedicated to bridging the gap between academic learning and professional success.
-                      We empower students and career professionals with the practical skills and industry connections needed to thrive in today's rapidly evolving tech landscape.
-                  </p>
-              </div>
+              
 
               <div class="about-features">
                   <div class="feature-box">
@@ -643,7 +642,7 @@
             <h2 class="faq-title">Frequently Asked Questions</h2>
             <p class="faq-subtext">
               Have more questions? Reach out to our team at 
-              <a href="mailto:info@talentconnect.com">info@talentconnect.com</a>
+              <a href="mailto:info@careerkrafter.in">info@careerkrafter.in</a>
             </p>
 
             <div class="faq-container" id="faqContainer"></div>
@@ -686,12 +685,19 @@
     </div>
 
     <!-- Brand & About -->
-    <div class="text-center mb-12">
-      <h3 class="text-3xl font-extrabold tracking-wide text-blue-400">TC</h3>
-      <p class="text-gray-400 mt-2 max-w-xl mx-auto">
-        TalentConnect Careerkraft <br> Bridging the gap between academic learning and professional success.
+    <div class="text-center mb-16 flex flex-col items-center justify-center">
+      <img
+        src="./assets/logo.png"
+        alt="Careerkrafter Logo"
+        class="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain mb-4"
+      />
+
+      <p class="text-gray-400 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+        <span class="text-green-400 font-semibold">Careerkraft</span><br>
+        Bridging the gap between academic learning and professional success.
       </p>
     </div>
+
 
     <!-- Social Icons -->
     <div class="flex justify-center gap-8 mb-14">
@@ -735,7 +741,7 @@
       <div class="text-center md:text-left">
         <h4 class="text-xl font-semibold mb-4">Contact Info</h4>
         <ul class="text-gray-400 space-y-2">
-          <li>📧 info@talentconnect.com</li>
+          <li>📧 info@careerkrafter.in</li>
           <li>📞 +91 8431472672</li>
           <li>📍 Bangalore, India</li>
         </ul>
@@ -928,6 +934,31 @@
                 <div id="consultationMessage" class="mt-4 hidden"></div>
             </div>
         </div>
+
+       
+        <!-- COURSE DETAIL MODAL -->
+        <div id="landingCourseModal" class="modal hidden">
+          <div class="modal-overlay" onclick="closeLandingCourseModal()"></div>
+        
+          <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeLandingCourseModal()">×</button>
+          
+            <div class="modal-header">
+               <div id="modalIconWrapper"></div>
+              <h2 id="modalTitle"></h2>
+            </div>
+          
+            <p id="modalDescription"></p>
+          
+            <div class="modal-meta">
+              <span id="modalDuration"></span>
+              <span id="modalLevel"></span>
+            </div>
+          
+            <ul id="modalFeatures"></ul>
+          </div>
+        </div>
+
 
 
         <!-- AOS Animation Library -->

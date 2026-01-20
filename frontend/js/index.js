@@ -1,7 +1,9 @@
 /* ---------- CONFIG ---------- */
-// const API_BASE = "https://talentconnect-careercraft.onrender.com";
-// const API_BASE = "http://localhost:5000";
 const API_BASE = "https://api.careerkrafter.in";
+//const API_BASE = "http://31.97.232.215:5001";
+//const API_BASE = "http://localhost:5000";
+
+
 
 /*-------------program highlights------------ */
 const SITE_STATS_API = `${API_BASE}/api/site_stats`;
@@ -39,7 +41,7 @@ async function loadProgramHighlights() {
     // courseEl.style.webkitBackgroundClip = 'text';
     // courseEl.style.webkitTextFillColor = 'transparent';
   } catch (err) {
-    console.warn("⚠ Using fallback for program highlights", err);
+    console.warn("⚠ Using fallback for programd highlights", err);
     document.getElementById("stat_program_duration").innerText =
       fallback.program_duration;
     document.getElementById("stat_course_tracks").innerText =
@@ -68,7 +70,7 @@ async function loadCoursesLanding() {
 
     courses.forEach((c) => {
       // 🔥 limit description to 10 words
-      let shortDesc = c.description.split(" ");
+      {/*let shortDesc = c.description.split(" ");
       if (shortDesc.length > 10) {
         shortDesc = shortDesc.slice(0, 10).join(" ") + " ...";
       } else {
@@ -87,7 +89,27 @@ async function loadCoursesLanding() {
         </div>
       `;
       grid.appendChild(card);
+    });*/}
+    const card = document.createElement("div");
+      card.className = "course-card";
+
+      // ✅ click handler
+      card.onclick = () => openCourseModal(c);
+
+      card.innerHTML = `
+        <div class="course-card-content">
+          <img 
+            src="${c.icon}" 
+            alt="${c.title}" 
+            class="course-icon"
+          />
+          <h3 class="course-title">${c.title}</h3>
+        </div>
+      `;
+
+      grid.appendChild(card);
     });
+    
 
     // CTA card stays unchanged
     const last = document.createElement("div");
@@ -100,10 +122,65 @@ async function loadCoursesLanding() {
       <button class="special-btn" onclick="showExpertConsultationModal()">Talk with Expert</button>
     `;
     grid.appendChild(last);
+    
   } catch (err) {
     grid.innerHTML = `<p style="color:#ff7777;">Failed to load courses</p>`;
   }
 }
+
+function openCourseModal(course) {
+  const modal = document.getElementById("landingCourseModal");
+  const iconWrapper = document.getElementById("modalIconWrapper");
+
+  iconWrapper.innerHTML = "";
+
+  // icon handling (emoji vs image)
+  if (course.icon && course.icon.startsWith("http")) {
+    const img = document.createElement("img");
+    img.src = course.icon;
+    img.className = "modal-icon";
+    iconWrapper.appendChild(img);
+  } else {
+    const span = document.createElement("span");
+    span.className = "modal-emoji";
+    span.innerText = course.icon || "";
+    iconWrapper.appendChild(span);
+  }
+
+  document.getElementById("modalTitle").innerText = course.title;
+  document.getElementById("modalDescription").innerText =
+    course.full_description || course.description || "";
+
+  document.getElementById("modalDuration").innerText =
+    `⏱ ${course.duration || ""}`;
+
+  document.getElementById("modalLevel").innerText =
+    `🎯 ${course.level || ""}`;
+
+  const featureList = document.getElementById("modalFeatures");
+  featureList.innerHTML = "";
+
+  if (Array.isArray(course.features)) {
+    course.features.forEach(f => {
+      f.split("\n").forEach(item => {
+        if (item.trim()) {
+          const li = document.createElement("li");
+          li.innerText = item.trim();
+          featureList.appendChild(li);
+        }
+      });
+    });
+  }
+
+  modal.classList.remove("hidden");
+}
+
+
+
+function closeLandingCourseModal() {
+  document.getElementById("landingCourseModal").classList.add("hidden");
+}
+
 
 /* ---- Modal dummy ---- */
 window.openTrackModal = () => {
