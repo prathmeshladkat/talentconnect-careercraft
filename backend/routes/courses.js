@@ -9,7 +9,7 @@ const router = express.Router();
 const upload = createUploader('icon'); // memoryStorage for Cloudinary
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(process.cwd(), 'uploads', 'success_stories');
+const uploadsDir = path.join(process.cwd(), 'uploads', 'icon');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }

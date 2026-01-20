@@ -65,16 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
+// ======== COURSES MANAGEMENT (FIXED FOR PRODUCTION) ========
 (() => {
-  const COURSES_API = `${API_BASE}/api/courses`; // ✅ Use global API_BASE
+  const COURSES_API = `${API_BASE}/api/courses`;
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
   const deleteModal = document.getElementById("deleteConfirmModal");
-  const sectionIconHolder = document.querySelector("#coursesSection h2"); // to place emoji
-
-  const courseForm = document.getElementById("courseForm");
-  const saveCourseBtn = document.getElementById("saveCourseBtn");
 
   const fld = {
     id: document.getElementById("course_id"),
@@ -90,65 +87,60 @@ document.addEventListener("DOMContentLoaded", () => {
   let courses = [];
   let deletingCourseId = null;
 
-  // open add modal
+  // Open add modal
   document
     .getElementById("openAddCourseBtn")
     .addEventListener("click", () => openCourseModal());
 
-
-  // save course (create & update)
-  saveCourseBtn.addEventListener("click", async () => {
+  // Save course (create & update) - FIXED VERSION
+  document.getElementById("saveCourseBtn").addEventListener("click", async () => {
     const id = fld.id.value;
-  
+
+    // Create FormData exactly like success stories
     const formData = new FormData();
-  
-    // ✅ ALWAYS append the file field (even if empty) for multer to parse correctly
-    if (fld.icon.files[0]) {
-      formData.append("icon", fld.icon.files[0]);
-    }
-  
-    // ✅ text fields
+    
     formData.append("title", fld.title.value.trim());
     formData.append("description", fld.description.value.trim());
     formData.append("full_description", fld.full_description.value.trim());
     formData.append("duration", fld.duration.value.trim());
     formData.append("level", fld.level.value.trim());
     formData.append("features", fld.features.value.trim());
-  
-    // ✅ Debug: Check what's being sent
-    console.log("📤 Sending FormData:");
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+    
+    // Only append icon if file is selected
+    if (fld.icon.files && fld.icon.files[0]) {
+      formData.append("icon", fld.icon.files[0]);
     }
-  
+
+    console.log("📤 Sending to:", id ? `${COURSES_API}/${id}` : COURSES_API);
+    console.log("📤 Method:", id ? "PUT" : "POST");
+    
     try {
-      const res = await fetch(id ?`${COURSES_API}/${id}` : COURSES_API, {
+      const res = await fetch(id ? `${COURSES_API}/${id}` : COURSES_API, {
         method: id ? "PUT" : "POST",
         credentials: "include",
         body: formData,
-        // ❌ DO NOT set Content-Type header - let browser set it automatically
+        // DON'T set Content-Type - browser sets it with boundary
       });
-    
+
       if (!res.ok) {
         const errorData = await res.json();
         console.error("❌ Server error:", errorData);
         throw new Error(errorData.error || "Failed to save course");
       }
-    
+
       const result = await res.json();
       console.log("✅ Success:", result);
-      
-      await loadCourses();
-      showToast("Course saved successfully!", "success");
+
       closeCourseModal();
+      showToast(id ? "Course updated successfully!" : "Course added successfully!", "success");
+      await loadCourses();
     } catch (err) {
-      console.error("❌ Error saving course:", err);
+      console.error("❌ Error:", err);
       showToast(err.message || "Failed to save course!", "error");
     }
   });
-  
 
-  // delete flow
+  // Delete flow
   document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
   document.getElementById("confirmDeleteBtn").onclick = async () => {
     try {
@@ -156,20 +148,21 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "DELETE",
         credentials: "include",
       });
+      
       if (!res.ok) throw new Error();
-      await loadCourses();
+      
       closeDeleteModal();
       showToast("Course Deleted!", "success");
+      await loadCourses();
     } catch {
-      alert("Delete failed.");
       showToast("Course Deletion Failed!", "error");
     }
   };
 
-  // open modal helper
+  // Open modal helper
   function openCourseModal(course = null) {
     fld.id.value = course?.id || "";
-     fld.icon.value = "";
+    fld.icon.value = ""; // Clear file input
     fld.title.value = course?.title || "";
     fld.description.value = course?.description || "";
     fld.full_description.value = course?.full_description || "";
@@ -185,8 +178,10 @@ document.addEventListener("DOMContentLoaded", () => {
     courseModal.style.display = "flex";
     document.body.style.overflow = "hidden";
   }
+
   window.openCourseModal = (id) =>
     openCourseModal(courses.find((c) => c.id == id));
+    
   window.closeCourseModal = () => {
     courseModal.classList.add("hidden");
     courseModal.style.display = "none";
@@ -199,29 +194,34 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteModal.style.display = "flex";
     document.body.style.overflow = "hidden";
   }
+
   function closeDeleteModal() {
     deleteModal.classList.add("hidden");
     deleteModal.style.display = "none";
     document.body.style.overflow = "";
   }
+
   window.openDeleteModal = openDeleteModal;
 
-  // fetch + fallback + icon injection
+  // Fetch courses
   async function loadCourses() {
     try {
       const res = await fetch(COURSES_API, {
         credentials: "include",
       });
+      
       if (!res.ok) throw new Error();
+      
       courses = await res.json();
       if (!Array.isArray(courses)) courses = [];
-    } catch {
-      // fallback when backend empty or offline
+    } catch (err) {
+      console.error("Failed to load courses:", err);
+      // Fallback
       courses = [
         {
           id: 1,
           icon: "⚛️",
-          title: "MERN Full Stack Developments",
+          title: "MERN Full Stack Development",
           description: "Learn mern stack",
           duration: "3 months",
           level: "Intermediate",
@@ -238,22 +238,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderCourses(courses);
-
-    // Add emoji to Course Management title
-    {/*if (courses.length && courses[0].icon) {
-      if (!sectionIconHolder.innerHTML.includes(courses[0].icon)) {
-        sectionIconHolder.innerHTML = `<span class="mr-2">${courses[0].icon}</span>Course Management`;
-      }
-    }*/}
   }
 
   function renderCourses(data) {
     tableBody.innerHTML = "";
+    
     if (!data.length) {
-      tableBody.innerHTML = `<tr class="transition duration-200 hover:bg-gray-700/40 hover:scale-[1.01] cursor-pointer">
-<td colspan="6" class="p-6 text-center text-gray-400">
-        No courses available — fallback loaded
-      </td></tr>`;
+      tableBody.innerHTML = `
+        <tr class="transition duration-200 hover:bg-gray-700/40 hover:scale-[1.01] cursor-pointer">
+          <td colspan="6" class="p-6 text-center text-gray-400">
+            No courses available
+          </td>
+        </tr>`;
       return;
     }
 
@@ -261,15 +257,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const row = document.createElement("tr");
       row.className = "courses-row";
       row.innerHTML = `
-       <td class="p-4 text-center">
-        ${
-          c.icon && c.icon.startsWith("http")
-            ? `<img src="${c.icon}" class="w-10 h-10 mx-auto object-contain" />`
-            : `<span class="text-2xl">${c.icon || ""}</span>`
-        }
-      </td>
-
-
+        <td class="p-4 text-center">
+          ${
+            c.icon && c.icon.startsWith("http")
+              ? `<img src="${c.icon}" class="w-10 h-10 mx-auto object-contain" />`
+              : `<span class="text-2xl">${c.icon || "📘"}</span>`
+          }
+        </td>
         <td class="p-4">${c.title}</td>
         <td class="p-4">${c.description}</td>
         <td class="p-4">${c.duration}</td>
@@ -283,7 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // *** Load courses automatically even before user clicks "Courses" ***
+  // Load courses on page load
   document.addEventListener("DOMContentLoaded", loadCourses);
 })();
 
