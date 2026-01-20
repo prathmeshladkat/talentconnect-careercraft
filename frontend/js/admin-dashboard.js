@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
 (() => {
-  const API_BASE = "http://31.97.232.215:5001/api/courses";
+  const COURSES_API = `${API_BASE}/api/courses`; // ✅ Use global API_BASE
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   
     try {
-      const res = await fetch(id ? `${API_BASE}/${id}` : API_BASE, {
+      const res = await fetch(id ?`${COURSES_API}/${id}` : COURSES_API, {
         method: id ? "PUT" : "POST",
         credentials: "include",
         body: formData,
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
   document.getElementById("confirmDeleteBtn").onclick = async () => {
     try {
-      const res = await fetch(`${API_BASE}/${deletingCourseId}`, {
+      const res = await fetch(`${COURSES_API}/${deletingCourseId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // fetch + fallback + icon injection
   async function loadCourses() {
     try {
-      const res = await fetch(API_BASE, {
+      const res = await fetch(COURSES_API, {
         credentials: "include",
       });
       if (!res.ok) throw new Error();
