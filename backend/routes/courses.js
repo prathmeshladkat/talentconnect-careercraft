@@ -6,10 +6,10 @@ import path from 'path';
 import fs from 'fs';
 
 const router = express.Router();
-const upload = createUploader('icon'); // memoryStorage for Cloudinary
+const upload = createUploader('icon');
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(process.cwd(), 'uploads', 'icon');
+// Ensure uploads directory exists (for local fallback)
+const uploadsDir = path.join(process.cwd(), 'uploads', 'course_icons');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -18,12 +18,10 @@ if (!fs.existsSync(uploadsDir)) {
 router.get('/', async (req, res) => {
   try {
     const [courses] = await db.query('SELECT * FROM courses');
-    // optional: normalize features to array
     const normalized = courses.map(c => ({
       ...c,
       features: c.features ? c.features.split(',') : []
     }));
-
     res.json(normalized);
   } catch (err) {
     console.error(err);
@@ -44,48 +42,44 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create course
-router.post('/',upload.single('icon'), async (req, res) => {
+router.post('/', upload.single('icon'), async (req, res) => {
   try {
     console.log("📥 POST Request Body:", req.body);
     console.log("📁 POST Request File:", req.file);
+    console.log("📋 Headers:", req.headers);
 
-  const { title, description, full_description, duration, level, features } = req.body;
+    const { title, description, full_description, duration, level, features } = req.body;
 
-  console.log("BODY:", req.body);
-  console.log("FILE:", req.file);
-
-  if (!title || title.trim() === '') {
+    // Validate title
+    if (!title || title.trim() === '') {
+      console.error("❌ Title validation failed. Received:", title);
       return res.status(400).json({ error: 'Title required' });
     }
 
-  if (!req.file) {
+    // Validate file
+    if (!req.file) {
+      console.error("❌ No file uploaded");
       return res.status(400).json({ error: 'Icon file is required' });
     }
 
-  // ✅ Validate file type (image or svg)
-    const allowedTypes = [
-      'image/png',
-      'image/jpeg',
-      'image/jpg',
-      'image/svg+xml'
-    ];
-
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
     if (!allowedTypes.includes(req.file.mimetype)) {
       return res.status(400).json({ error: 'Only image or SVG files are allowed' });
     }
 
-  const featuresString = Array.isArray(features) ? features.join(',') : features;
+    const featuresString = Array.isArray(features) 
+      ? features.join(',') 
+      : (features || '');
 
-  let iconUrl = req.file.path;
+    let iconUrl = req.file.path;
 
-  if (req.file.buffer) {
+    // Upload to Cloudinary
+    if (req.file.buffer) {
       const result = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
-          {
-            folder: 'course_icons',
-            resource_type: 'image'
-          },
-          (err, result) => (err ? reject(err) : resolve(result))
+          { folder: 'course_icons', resource_type: 'image' },
+          (err, result) => err ? reject(err) : resolve(result)
         ).end(req.file.buffer);
       });
       iconUrl = result.secure_url;
@@ -93,30 +87,42 @@ router.post('/',upload.single('icon'), async (req, res) => {
       iconUrl = `/uploads/course_icons/${req.file.originalname}`;
     }
 
-  const [result] = await db.query(
-    'INSERT INTO courses (icon,title,description,full_description,duration,level,features) VALUES (?,?,?,?,?,?,?)',
-    [iconUrl,title,description,full_description,duration,level,featuresString]
-  );
-  res.status(201).json({ message:'Course created!', id: result.insertId, icon: iconUrl });
+    const [result] = await db.query(
+      'INSERT INTO courses (icon, title, description, full_description, duration, level, features) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [iconUrl, title, description || '', full_description || '', duration || '', level || '', featuresString]
+    );
+
+    console.log("✅ Course created successfully:", result.insertId);
+    res.status(201).json({ 
+      message: 'Course created!', 
+      id: result.insertId, 
+      icon: iconUrl 
+    });
+
   } catch (err) {
-    console.error('POST course error:', err);
+    console.error('❌ POST course error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // PUT update course
-router.put('/:id',upload.single('icon'), async (req, res) => {
+router.put('/:id', upload.single('icon'), async (req, res) => {
   try {
-
-     console.log("📥 PUT Request Body:", req.body);
+    console.log("📥 PUT Request Body:", req.body);
     console.log("📁 PUT Request File:", req.file);
+    console.log("🆔 Course ID:", req.params.id);
+    console.log("📋 Headers:", req.headers);
+
     const { title, description, full_description, duration, level, features } = req.body;
-   
+
+    // Validate title
     if (!title || title.trim() === '') {
+      console.error("❌ Title validation failed. Received:", title);
+      console.error("❌ Full body:", req.body);
       return res.status(400).json({ error: 'Title required' });
     }
 
-    // get existing course
+    // Get existing course
     const [[existing]] = await db.query(
       'SELECT icon FROM courses WHERE id = ?',
       [req.params.id]
@@ -126,17 +132,12 @@ router.put('/:id',upload.single('icon'), async (req, res) => {
       return res.status(404).json({ error: 'Course not found' });
     }
 
-    let iconUrl = existing.icon; // 👈 default (keep old icon)
+    let iconUrl = existing.icon; // Keep old icon by default
 
-    // if new file uploaded
+    // If new file uploaded
     if (req.file) {
-      const allowedTypes = [
-        'image/png',
-        'image/jpeg',
-        'image/jpg',
-        'image/svg+xml'
-      ];
-
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+      
       if (!allowedTypes.includes(req.file.mimetype)) {
         return res.status(400).json({ error: 'Only image or SVG files allowed' });
       }
@@ -144,11 +145,8 @@ router.put('/:id',upload.single('icon'), async (req, res) => {
       if (req.file.buffer) {
         const result = await new Promise((resolve, reject) => {
           cloudinary.uploader.upload_stream(
-            {
-              folder: 'course_icons',
-              resource_type: 'image'
-            },
-            (err, result) => (err ? reject(err) : resolve(result))
+            { folder: 'course_icons', resource_type: 'image' },
+            (err, result) => err ? reject(err) : resolve(result)
           ).end(req.file.buffer);
         });
         iconUrl = result.secure_url;
@@ -159,7 +157,7 @@ router.put('/:id',upload.single('icon'), async (req, res) => {
 
     const featuresString = Array.isArray(features)
       ? features.join(',')
-      : features;
+      : (features || '');
 
     await db.query(
       `UPDATE courses 
@@ -167,29 +165,35 @@ router.put('/:id',upload.single('icon'), async (req, res) => {
        WHERE id=?`,
       [
         iconUrl,
-        title,
-        description,
-        full_description,
-        duration,
-        level,
+        title.trim(),
+        description?.trim() || '',
+        full_description?.trim() || '',
+        duration?.trim() || '',
+        level?.trim() || '',
         featuresString,
         req.params.id
       ]
     );
 
+    console.log("✅ Course updated successfully");
     res.json({ message: 'Course updated!', icon: iconUrl });
 
   } catch (err) {
-    console.error('PUT course error:', err);
+    console.error('❌ PUT course error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // DELETE course
 router.delete('/:id', async (req, res) => {
-  const [result] = await db.query('DELETE FROM courses WHERE id=?', [req.params.id]);
-  if (!result.affectedRows) return res.status(404).json({ error: 'Course not found' });
-  res.json({ message: 'Course deleted!' });
+  try {
+    const [result] = await db.query('DELETE FROM courses WHERE id=?', [req.params.id]);
+    if (!result.affectedRows) return res.status(404).json({ error: 'Course not found' });
+    res.json({ message: 'Course deleted!' });
+  } catch (err) {
+    console.error('❌ DELETE course error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

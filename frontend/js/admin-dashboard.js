@@ -65,13 +65,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
-// ======== COURSES MANAGEMENT (FIXED FOR PRODUCTION) ========
+// ======== COURSES MANAGEMENT (MATCHING SUCCESS STORIES PATTERN) ========
 (() => {
   const COURSES_API = `${API_BASE}/api/courses`;
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
   const deleteModal = document.getElementById("deleteConfirmModal");
+  const courseForm = document.getElementById("courseForm");
 
   const fld = {
     id: document.getElementById("course_id"),
@@ -88,17 +89,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let deletingCourseId = null;
 
   // Open add modal
-  document
-    .getElementById("openAddCourseBtn")
-    .addEventListener("click", () => openCourseModal());
+  document.getElementById("openAddCourseBtn").addEventListener("click", () => {
+    openCourseModal();
+  });
 
-  // Save course (create & update) - FIXED VERSION
-  document.getElementById("saveCourseBtn").addEventListener("click", async () => {
+  // CREATE / UPDATE - Exactly like success stories
+  courseForm.onsubmit = async (e) => {
+    e.preventDefault();
+    
     const id = fld.id.value;
-
-    // Create FormData exactly like success stories
     const formData = new FormData();
     
+    // Append text fields first (same order as success stories)
     formData.append("title", fld.title.value.trim());
     formData.append("description", fld.description.value.trim());
     formData.append("full_description", fld.full_description.value.trim());
@@ -106,20 +108,20 @@ document.addEventListener("DOMContentLoaded", () => {
     formData.append("level", fld.level.value.trim());
     formData.append("features", fld.features.value.trim());
     
-    // Only append icon if file is selected
+    // Append file last (same as success stories)
     if (fld.icon.files && fld.icon.files[0]) {
       formData.append("icon", fld.icon.files[0]);
     }
 
     console.log("📤 Sending to:", id ? `${COURSES_API}/${id}` : COURSES_API);
     console.log("📤 Method:", id ? "PUT" : "POST");
+    console.log("📤 Has file:", !!(fld.icon.files && fld.icon.files[0]));
     
     try {
       const res = await fetch(id ? `${COURSES_API}/${id}` : COURSES_API, {
         method: id ? "PUT" : "POST",
         credentials: "include",
         body: formData,
-        // DON'T set Content-Type - browser sets it with boundary
       });
 
       if (!res.ok) {
@@ -131,17 +133,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await res.json();
       console.log("✅ Success:", result);
 
-      closeCourseModal();
-      showToast(id ? "Course updated successfully!" : "Course added successfully!", "success");
-      await loadCourses();
+      courseModal.classList.add("hidden");
+      showToast(id ? "Course updated!" : "Course added!", "success");
+      loadCourses();
     } catch (err) {
       console.error("❌ Error:", err);
       showToast(err.message || "Failed to save course!", "error");
     }
-  });
+  };
 
-  // Delete flow
-  document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
+  // Delete course
   document.getElementById("confirmDeleteBtn").onclick = async () => {
     try {
       const res = await fetch(`${COURSES_API}/${deletingCourseId}`, {
@@ -149,20 +150,23 @@ document.addEventListener("DOMContentLoaded", () => {
         credentials: "include",
       });
       
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Delete failed");
       
       closeDeleteModal();
       showToast("Course Deleted!", "success");
-      await loadCourses();
-    } catch {
+      loadCourses();
+    } catch (err) {
+      console.error(err);
       showToast("Course Deletion Failed!", "error");
     }
   };
 
+  document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
+
   // Open modal helper
   function openCourseModal(course = null) {
     fld.id.value = course?.id || "";
-    fld.icon.value = ""; // Clear file input
+    fld.icon.value = "";
     fld.title.value = course?.title || "";
     fld.description.value = course?.description || "";
     fld.full_description.value = course?.full_description || "";
@@ -179,9 +183,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = "hidden";
   }
 
-  window.openCourseModal = (id) =>
+  window.openCourseModal = (id) => {
     openCourseModal(courses.find((c) => c.id == id));
-    
+  };
+
   window.closeCourseModal = () => {
     courseModal.classList.add("hidden");
     courseModal.style.display = "none";
@@ -203,38 +208,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.openDeleteModal = openDeleteModal;
 
-  // Fetch courses
+  // Load courses
   async function loadCourses() {
     try {
       const res = await fetch(COURSES_API, {
         credentials: "include",
       });
       
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Failed to fetch courses");
       
       courses = await res.json();
       if (!Array.isArray(courses)) courses = [];
     } catch (err) {
       console.error("Failed to load courses:", err);
-      // Fallback
-      courses = [
-        {
-          id: 1,
-          icon: "⚛️",
-          title: "MERN Full Stack Development",
-          description: "Learn mern stack",
-          duration: "3 months",
-          level: "Intermediate",
-        },
-        {
-          id: 2,
-          icon: "🤖",
-          title: "Artificial Intelligence",
-          description: "Learn AI basics",
-          duration: "3 months",
-          level: "Intermediate",
-        },
-      ];
+      courses = [];
     }
 
     renderCourses(courses);
@@ -245,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (!data.length) {
       tableBody.innerHTML = `
-        <tr class="transition duration-200 hover:bg-gray-700/40 hover:scale-[1.01] cursor-pointer">
+        <tr class="transition duration-200 hover:bg-gray-700/40">
           <td colspan="6" class="p-6 text-center text-gray-400">
             No courses available
           </td>
@@ -255,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     data.forEach((c) => {
       const row = document.createElement("tr");
-      row.className = "courses-row";
+      row.className = "border-b border-gray-700 hover:bg-gray-700/40 transition";
       row.innerHTML = `
         <td class="p-4 text-center">
           ${
