@@ -1,8 +1,8 @@
 // Section navigation
 
 //const API_BASE = "https://api.careerkrafter.in";
-//const API_BASE = "http://13.232.155.83:5000";
 const API_BASE = "http://31.97.232.215:5001";
+//const API_BASE = "http://localhost:5000";
 
 function showSection(section) {
   const sections = [
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
 (() => {
-  const API_BASE = "http://31.97.232.215:5001/api/courses";
+  const API_BASE = `${API_BASE}/api/courses`;
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");

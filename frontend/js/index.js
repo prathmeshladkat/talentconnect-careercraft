@@ -1,7 +1,8 @@
 /* ---------- CONFIG ---------- */
-const API_BASE = "http://31.97.232.215:5001";
-// const API_BASE = "https://api.careerkrafter.in";
 //const API_BASE = "http://31.97.232.215:5001";
+// const API_BASE = "https://api.careerkrafter.in";
+const API_BASE = "http://31.97.232.215:5001";
+
 
 
 /*-------------program highlights------------ */
