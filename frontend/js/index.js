@@ -58,6 +58,14 @@ document.addEventListener("DOMContentLoaded", loadProgramHighlights);
 /*--------------------courses section ----------------------- */
 const COURSES_API = `${API_BASE}/api/courses`;
 
+function truncateWords(text, limit = 10) {
+  if (!text) return "";
+  const words = text.split(" ");
+  return words.length > limit
+    ? words.slice(0, limit).join(" ") + "..."
+    : text;
+}
+
 async function loadCoursesLanding() {
   const grid = document.getElementById("coursesGrid");
   grid.innerHTML = "<p style='color:white'>Loading...</p>";
@@ -96,6 +104,8 @@ async function loadCoursesLanding() {
       // ✅ click handler
       card.onclick = () => openCourseModal(c);
 
+       const shortDesc = truncateWords(c.description, 10);
+
       card.innerHTML = `
         <div class="course-card-content">
           <img 
@@ -104,6 +114,12 @@ async function loadCoursesLanding() {
             class="course-icon"
           />
           <h3 class="course-title">${c.title}</h3>
+          <p class="course-desc">${shortDesc}</p>
+
+          <div class="course-meta">
+            <span class="meta-item">⏱ ${c.duration}</span>
+            <span class="meta-item">🎯 ${c.level}</span>
+          </div>
         </div>
       `;
 
@@ -148,11 +164,15 @@ function openCourseModal(course) {
   }
 
   document.getElementById("modalTitle").innerText = course.title;
+
   document.getElementById("modalDescription").innerText =
-    course.full_description || course.description || "";
+    course.full_description || "";
 
   document.getElementById("modalDuration").innerText =
     `⏱ ${course.duration || ""}`;
+
+  document.getElementById("modalLevel").innerText =
+    `🎯 ${course.level || ""}`;
 
   document.getElementById("modalLevel").innerText =
     `🎯 ${course.level || ""}`;
