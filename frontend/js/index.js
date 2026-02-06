@@ -120,6 +120,22 @@ async function loadCoursesLanding() {
             <span class="meta-item">⏱ ${c.duration}</span>
             <span class="meta-item">🎯 ${c.level}</span>
           </div>
+
+          <div class="course-actions">
+            <button 
+              class="course-btn primary"
+              onclick="event.stopPropagation(); showRegistrationModal()"
+            >
+              Register Now
+            </button>
+
+            <button 
+              class="course-btn secondary"
+              onclick="event.stopPropagation(); showExpertConsultationModal()"
+            >
+              Talk with Expert
+            </button>
+          </div>
         </div>
       `;
 
