@@ -120,22 +120,6 @@ async function loadCoursesLanding() {
             <span class="meta-item">⏱ ${c.duration}</span>
             <span class="meta-item">🎯 ${c.level}</span>
           </div>
-
-          <div class="course-actions">
-            <button 
-              class="course-btn primary"
-              onclick="event.stopPropagation(); showRegistrationModal()"
-            >
-              Register Now
-            </button>
-
-            <button 
-              class="course-btn secondary"
-              onclick="event.stopPropagation(); showExpertConsultationModal()"
-            >
-              Talk with Expert
-            </button>
-          </div>
         </div>
       `;
 
@@ -207,6 +191,25 @@ function openCourseModal(course) {
       });
     });
   }
+
+  const actions = document.getElementById("modalActions");
+
+  actions.innerHTML = `
+    <button 
+      class="modal-btn primary"
+      onclick="showRegistrationModal()"
+    >
+      Register Now
+    </button>
+  
+    <button 
+      class="modal-btn secondary"
+      onclick="showExpertConsultationModal()"
+    >
+      Talk with Expert
+    </button>
+  `;
+
 
   modal.classList.remove("hidden");
 }
