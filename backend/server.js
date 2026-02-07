@@ -30,6 +30,8 @@ const allowedOrigins = [
   "https://careerkrafter.in",
   "https://www.careerkrafter.in",
   "http://31.97.232.215:9090",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
 ];
 
 app.use((req, res, next) => {
