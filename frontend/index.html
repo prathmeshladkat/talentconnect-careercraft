@@ -56,7 +56,7 @@
         <div class="flex justify-between items-center h-20">
         
           <!-- Logo -->
-          <a href="#" class="flex items-center space-x-1 group">
+          <a href="#" class="flex items-center gap-1 group">
             <img
               src="./assets/logo.png"
               alt="Careerkrafter Logo"
@@ -65,7 +65,7 @@
           
             <span
               class="text-2xl md:text-3xl font-bold tracking-tight text-green-400
-                     group-hover:text-green-300 transition"
+                     group-hover:text-green-300 transition  -ml-5"
             >
               Careerkrafter
             </span>
@@ -938,26 +938,30 @@
        
         <!-- COURSE DETAIL MODAL -->
         <div id="landingCourseModal" class="modal hidden">
-          <div class="modal-overlay" onclick="closeLandingCourseModal()"></div>
-        
-          <div class="modal-box" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeLandingCourseModal()">×</button>
-          
-            <div class="modal-header">
+           <div class="modal-overlay" onclick="closeLandingCourseModal()"></div>
+
+           <div class="modal-box" onclick="event.stopPropagation()">
+             <button class="modal-close" onclick="closeLandingCourseModal()">×</button>
+
+             <div class="modal-header">
                <div id="modalIconWrapper"></div>
-              <h2 id="modalTitle"></h2>
-            </div>
-          
-            <p id="modalDescription"></p>
-          
-            <div class="modal-meta">
-              <span id="modalDuration"></span>
-              <span id="modalLevel"></span>
-            </div>
-          
-            <ul id="modalFeatures"></ul>
-          </div>
+               <h2 id="modalTitle"></h2>
+             </div>
+           
+             <p id="modalDescription"></p>
+           
+             <div class="modal-meta">
+               <span id="modalDuration"></span>
+               <span id="modalLevel"></span>
+             </div>
+           
+             <ul id="modalFeatures"></ul>
+           
+             <!-- ✅ ADD THIS (IMPORTANT) -->
+             <div id="modalActions" class="modal-actions"></div>
+           </div>
         </div>
+
 
 
 

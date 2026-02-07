@@ -144,9 +144,26 @@ async function loadCoursesLanding() {
   }
 }
 
+function openRegisterFromCourseModal() {
+  closeLandingCourseModal();
+  setTimeout(() => {
+    showRegistrationModal();
+  }, 150);
+}
+
+function openExpertFromCourseModal() {
+  closeLandingCourseModal();
+  setTimeout(() => {
+    showExpertConsultationModal();
+  }, 150);
+}
+
+
 function openCourseModal(course) {
   const modal = document.getElementById("landingCourseModal");
   const iconWrapper = document.getElementById("modalIconWrapper");
+  console.log("Opening modal for:", course.title);
+
 
   iconWrapper.innerHTML = "";
 
@@ -191,6 +208,25 @@ function openCourseModal(course) {
       });
     });
   }
+
+  const actions = document.getElementById("modalActions");
+
+  actions.innerHTML = `
+    <button 
+      class="modal-btn primary"
+      onclick="openRegisterFromCourseModal()"
+    >
+      Register Now
+    </button>
+  
+    <button 
+      class="modal-btn secondary"
+      onclick="openExpertFromCourseModal()"
+    >
+      Talk with Expert
+    </button>
+  `;
+
 
   modal.classList.remove("hidden");
 }
