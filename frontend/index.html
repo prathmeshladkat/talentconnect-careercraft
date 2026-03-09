@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="overflow-x:hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,30 +49,28 @@
 
 </head>
 
-<body class="min-h-screen bg-gray-900 text-white">
+<body class="min-h-screen bg-gray-900 text-white" style="overflow-x:hidden;max-width:100%;">
     <!-- Navigation -->   
     <nav class="fixed top-0 w-full bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-20">
+        <div class="flex justify-between items-center h-16 md:h-20">
         
           <!-- Logo -->
-          <a href="#" class="flex items-center gap-1 group">
+          <a href="#" class="flex items-center gap-1 group min-w-0">
             <img
               src="./assets/logo.png"
               alt="Careerkrafter Logo"
-              class="h-14 md:h-16 w-auto object-contain"
+              class="h-10 md:h-16 w-auto object-contain flex-shrink-0"
             />
-          
             <span
-              class="text-2xl md:text-3xl font-bold tracking-tight text-green-400
-                     group-hover:text-green-300 transition  -ml-5"
+              class="text-base md:text-3xl font-bold tracking-tight text-green-400
+                     group-hover:text-green-300 transition -ml-3 md:-ml-5 whitespace-nowrap"
             >
               Careerkrafter
             </span>
           </a>
 
-
-          <!-- Nav Links -->
+          <!-- Nav Links (desktop only) -->
           <div class="hidden md:flex items-center gap-2">
             <a href="#learn" class="nav-pill">Learn</a>
             <a href="#build" class="nav-pill">Build</a>
@@ -81,14 +79,11 @@
             <a href="#get-hired" class="nav-pill">Get Hired</a>
           </div>
 
-          <!-- Action Buttons -->
-          <div class="flex items-center space-x-3">
-            <button onclick="showRegistrationModal()" class="primary-btn">
+          <!-- Register button (always visible) -->
+          <div class="flex items-center flex-shrink-0">
+            <button onclick="showRegistrationModal()" class="primary-btn text-sm md:text-base px-3 md:px-5 py-2 md:py-2.5">
               Register Now
             </button>
-            <!--<a href="admin-dashboard.html" class="secondary-btn">
-              Admin Panel
-            </a>-->
           </div>
         </div>
       </div>
@@ -100,7 +95,7 @@
         <!-- Hero Section -->
         <section class="px-4 hero-section">
             <div class="max-w-6xl mx-auto text-center">
-                <h1 class="text-5xl md:text-7xl font-bold mb-8">
+                <h1 class="text-3xl sm:text-5xl md:text-7xl font-bold mb-8" style="word-break:break-word;">
                     <span class="text-blue-400">Become Job Ready in 90 Days</span>
                     
               
@@ -642,7 +637,7 @@
             <h2 class="faq-title">Frequently Asked Questions</h2>
             <p class="faq-subtext">
               Have more questions? Reach out to our team at 
-              <a href="mailto:info@careerkrafter.in">info@careerkrafter.in</a>
+              <a href="/cdn-cgi/l/email-protection#c5acaba3aa85a6a4b7a0a0b7aeb7a4a3b1a0b7ebacab"><span class="__cf_email__" data-cfemail="2e474048416e4d4f5c4b4b5c455c4f485a4b5c004740">[email&#160;protected]</span></a>
             </p>
 
             <div class="faq-container" id="faqContainer"></div>
@@ -741,7 +736,7 @@
       <div class="text-center md:text-left">
         <h4 class="text-xl font-semibold mb-4">Contact Info</h4>
         <ul class="text-gray-400 space-y-2">
-          <li>📧 info@careerkrafter.in</li>
+          <li>📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="41282f272e012220332424332a3320273524336f282f">[email&#160;protected]</a></li>
           <li>📞 +91 8431472672</li>
           <li>📍 Bangalore, India</li>
         </ul>
