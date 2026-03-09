@@ -58,9 +58,29 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Show overview first when page loads
+// On page load: check for remembered session, else show login
 document.addEventListener("DOMContentLoaded", () => {
-  showSection("overview");
+  const saved = localStorage.getItem("adminRemember");
+
+  if (saved) {
+    try {
+      const { token, expiry } = JSON.parse(saved);
+
+      if (Date.now() > expiry) {
+        // Client-side expiry check
+        localStorage.removeItem("adminRemember");
+      } else {
+        // Try to auto-login with stored token
+        autoLoginWithToken(token);
+        return;
+      }
+    } catch (e) {
+      localStorage.removeItem("adminRemember");
+    }
+  }
+
+  // No remembered session — just show login (default state)
+  // showSection will be called inside showAdminDashboard after login
 });
 
 // Courses management JS
@@ -740,7 +760,20 @@ function updateLastUpdatedTime() {
   ).textContent = `${timeString} on ${dateString}`;
 }
 
-function logout() {
+async function logout() {
+  const token = sessionStorage.getItem("adminToken");
+  if (token) {
+    try {
+      await fetch(`${API_BASE}/api/admins/logout`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  }
+  sessionStorage.removeItem("adminToken");
+  localStorage.removeItem("adminRemember");
   window.location.href = "index.html";
 }
 
@@ -750,18 +783,18 @@ async function handleAdminLogin(event) {
   const form = event.target;
   const email = form.email.value.trim();
   const password = form.password.value.trim();
+  const rememberMe = document.getElementById("rememberMe")?.checked || false;
 
   const submitBtn = form.querySelector("button[type='submit']");
   submitBtn.disabled = true;
   submitBtn.innerText = "Verifying...";
 
-  //chahnges made 3-12-25
   try {
     const res = await fetch(`${API_BASE}/api/admins/login`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, rememberMe }),
     });
 
     const data = await res.json();
@@ -771,19 +804,54 @@ async function handleAdminLogin(event) {
       return;
     }
 
+    // Save token to sessionStorage always
+    sessionStorage.setItem("adminToken", data.token);
+
+    // If Remember Me checked → persist to localStorage for 15 days
+    if (rememberMe) {
+      const FIFTEEN_DAYS = 15 * 24 * 60 * 60 * 1000;
+      localStorage.setItem("adminRemember", JSON.stringify({
+        email,
+        token: data.token,
+        expiry: Date.now() + FIFTEEN_DAYS,
+      }));
+    } else {
+      localStorage.removeItem("adminRemember");
+    }
+
     showToast("Login successful!", "success");
 
-    // 🔥 Important: Show dashboard after login
     setTimeout(() => {
-      showAdminDashboard(); // <-- your function that hides login & shows dashboard
-      loadOverviewStats(); // <-- call stats API immediately
-      updateLastUpdatedTime(); // <-- update timestamp immediately
+      showAdminDashboard();
+      loadOverviewStats();
+      updateLastUpdatedTime();
     }, 500);
   } catch (err) {
     showToast("Network error ― please try again", "error");
   } finally {
     submitBtn.disabled = false;
     submitBtn.innerText = "Access Dashboard";
+  }
+}
+
+// Called on page load to silently log in if a valid remembered session exists
+async function autoLoginWithToken(token) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admins/verify-token`, {
+      headers: { "Authorization": `Bearer ${token}` },
+    });
+
+    if (res.ok) {
+      sessionStorage.setItem("adminToken", token);
+      showAdminDashboard();
+      loadOverviewStats();
+      updateLastUpdatedTime();
+    } else {
+      // Server rejected token (expired/invalid) — clear stale data
+      localStorage.removeItem("adminRemember");
+    }
+  } catch (err) {
+    console.error("Auto-login failed:", err);
   }
 }
 
@@ -817,7 +885,7 @@ function showAdminDashboard() {
   document.getElementById("adminLoginSection").classList.add("hidden");
   document.getElementById("adminDashboardSection").classList.remove("hidden");
 
-  // show stats immediately after dashboard is visible
+  showSection("overview");
   loadOverviewStats();
   updateLastUpdatedTime();
 }
