@@ -64,6 +64,7 @@
               <i class="fa-solid fa-envelope text-gray-400 mr-2"></i>
               <input
                 type="email"
+                id="adminEmail"
                 name="email"
                 required
                 class="w-full py-3 bg-transparent outline-none text-white"
@@ -80,6 +81,7 @@
               <i class="fa-solid fa-lock text-gray-400 mr-2"></i>
               <input
                 type="password"
+                id="adminPassword"
                 name="password"
                 required
                 class="w-full py-3 bg-transparent outline-none text-white"
@@ -95,7 +97,7 @@
 
           <div class="flex items-center justify-between mb-6 text-sm">
             <label class="flex items-center gap-2">
-              <input type="checkbox" class="w-4 h-4" />
+              <input type="checkbox" id="rememberMe" class="w-4 h-4" />
               Remember me
             </label>
           </div>
@@ -1057,13 +1059,6 @@
     </div>
     <script>
       document.getElementById("adminDashboardSection").classList.add("hidden");
-
-      function showAdminDashboard() {
-        document.getElementById("adminLoginSection").classList.add("hidden");
-        document
-          .getElementById("adminDashboardSection")
-          .classList.remove("hidden");
-      }
     </script>
 
     <script src="js/admin-dashboard.js" defer></script>
