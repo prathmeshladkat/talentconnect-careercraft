@@ -301,8 +301,93 @@ This is an automated message. Please do not reply to this email.
   }
 };
 
+/**
+ * Send an interview invitation email to a candidate
+ * @param {Object} details - Interview details
+ * @param {string} details.email - Candidate's email
+ * @param {string} details.full_name - Candidate's name
+ * @param {string} details.interviewDate - Date of interview
+ * @param {string} details.interviewTime - Time of interview
+ * @param {string} details.meetingLink - Google Meet link
+ * @param {string} details.description - Interview description/instructions
+ */
+export const sendInterviewEmail = async (details) => {
+  const logPrefix = '✉️ [Interview Email]';
+  
+  if (!details?.email) {
+    throw new Error('No email provided for interview invitation');
+  }
+
+  try {
+    const formattedDate = new Date(details.interviewDate).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const msg = {
+      to: details.email,
+      from: {
+        email: process.env.EMAIL_FROM,
+        name: 'CareerKrafter Team'
+      },
+      subject: 'Interview Invitation - CareerKrafter',
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2>Hello ${details.full_name},</h2>
+          <p>Congratulations!</p>
+          <p>Your interview has been scheduled.</p>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p><strong>Interview Date:</strong><br>${formattedDate}</p>
+            <p><strong>Interview Time:</strong><br>${details.interviewTime}</p>
+            <p><strong>Google Meet Link:</strong><br><a href="${details.meetingLink}" target="_blank">${details.meetingLink}</a></p>
+            <p><strong>Interview Description:</strong><br>${details.description.replace(/\n/g, '<br>')}</p>
+          </div>
+          
+          <p>Please join the meeting at least 10 minutes before your scheduled interview.</p>
+          
+          <p>Best Regards,<br><strong>CareerKrafter Team</strong></p>
+        </div>
+      `,
+      text: `Hello ${details.full_name},
+
+Congratulations!
+
+Your interview has been scheduled.
+
+Interview Date:
+${formattedDate}
+
+Interview Time:
+${details.interviewTime}
+
+Google Meet Link:
+${details.meetingLink}
+
+Interview Description:
+${details.description}
+
+Please join the meeting at least 10 minutes before your scheduled interview.
+
+Best Regards,
+CareerKrafter Team`
+    };
+
+    console.log(`${logPrefix} Sending to: ${msg.to}`);
+    await sgMail.send(msg);
+    console.log(`${logPrefix} ✅ Success!`);
+    return { success: true };
+  } catch (error) {
+    console.error(`${logPrefix} ❌ Failed to send interview email:`, error);
+    throw error;
+  }
+};
+
 export default {
   sendConsultationConfirmationEmail,
   sendAdminNotificationEmail,
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  sendInterviewEmail
 };

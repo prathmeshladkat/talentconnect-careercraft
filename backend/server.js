@@ -18,7 +18,7 @@ import adminsRouter from "./routes/admins.js";
 import usersRouter from "./routes/users.js";
 import consultationsRouter from "./routes/consultations.js";
 import overviewRouter from "./routes/overview.js";
-
+import interviewsRouter from "./routes/interviews.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -121,7 +121,7 @@ app.use("/api/admins", adminsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/consultations", consultationsRouter);
 app.use("/api/overview", overviewRouter);
-
+app.use("/api/interviews", interviewsRouter);
 /* ---------------------- Health Check ---------------------- */
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 
@@ -135,9 +135,14 @@ if (fs.existsSync(path.join(frontendPath, "index.html"))) {
 }
 
 /* ---------------------- Error Handler ---------------------- */
+// Ensure 404s for API routes return JSON, not HTML
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ success: false, error: `Route not found: ${req.method} ${req.originalUrl}` });
+});
+
 app.use((err, req, res, next) => {
   console.error("❌ Internal Error:", err.message);
-  res.status(500).json({ error: err.message });
+  res.status(500).json({ success: false, error: err.message });
 });
 
 /* ---------------------- Start Server ---------------------- */

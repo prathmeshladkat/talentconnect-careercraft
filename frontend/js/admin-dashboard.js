@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Courses management JS
 // ======== COURSES MANAGEMENT (UPDATED) ========
 (() => {
-  const API_BASE = " https://api.careerkrafter.in/api/courses";
+  const COURSES_API = "https://api.careerkrafter.in/api/courses";
 
   const tableBody = document.getElementById("coursesTableBody");
   const courseModal = document.getElementById("courseModal");
@@ -111,19 +111,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = fld.id.value;
 
     try {
-      const res = await fetch(id ? `${API_BASE}/${id}` : API_BASE, {
+      const res = await fetch(id ? `${COURSES_API}/${id}` : COURSES_API, {
         method: id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Failed to save course");
       await loadCourses();
-      showToast("Course Added!", "success");
+      showToast(id ? "Course Updated!" : "Course Added!", "success");
       closeCourseModal();
-    } catch {
-      alert("Save failed — check backend.");
-      showToast("Course Not Added!", "error");
+    } catch (err) {
+      showToast(err.message || "Course Not Added!", "error");
     }
   });
 
@@ -131,17 +130,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
   document.getElementById("confirmDeleteBtn").onclick = async () => {
     try {
-      const res = await fetch(`${API_BASE}/${deletingCourseId}`, {
+      const res = await fetch(`${COURSES_API}/${deletingCourseId}`, {
         method: "DELETE",
         credentials: "include",
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Delete failed");
       await loadCourses();
       closeDeleteModal();
       showToast("Course Deleted!", "success");
-    } catch {
-      alert("Delete failed.");
-      showToast("Course Deletion Failed!", "error");
+    } catch (err) {
+      showToast(err.message || "Course Deletion Failed!", "error");
     }
   };
 
@@ -188,13 +186,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // fetch + fallback + icon injection
   async function loadCourses() {
     try {
-      const res = await fetch(API_BASE, {
+      const res = await fetch(COURSES_API, {
         credentials: "include",
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error("Failed to load courses");
       courses = await res.json();
       if (!Array.isArray(courses)) courses = [];
-    } catch {
+    } catch (err) {
       // fallback when backend empty or offline
       courses = [
         {
@@ -269,11 +267,12 @@ let editingPartnerId = null;
 async function loadPartners() {
   try {
     const res = await fetch(PARTNERS_API, { credentials: "include" });
-
+    if (!res.ok) throw new Error("Failed to load partners");
     const data = await res.json();
     partnersData = data;
     console.log("API response: ", data);
-  } catch {
+  } catch (err) {
+    console.error(err);
     partnersData = [];
   }
   renderPartnersUI();
@@ -325,8 +324,12 @@ document.getElementById("addPartnerBtn").onclick = () => {
 function openPartnerModal(id) {
   editingPartnerId = id;
   const p = partnersData.find((x) => x.id == id);
+  if (!p) {
+    showToast("Partner not found", "error");
+    return;
+  }
   document.getElementById("partnerModalTitle").textContent = "Edit Partner";
-  document.getElementById("partnerNameInput").value = p.name;
+  document.getElementById("partnerNameInput").value = p.name || "";
   document.getElementById("partnerLogoInput").value = "";
   document.getElementById("partnerModal").classList.remove("hidden");
 }
@@ -347,15 +350,20 @@ document.getElementById("savePartnerBtn").onclick = async () => {
     ? `${PARTNERS_API}/${editingPartnerId}`
     : PARTNERS_API;
 
-  await fetch(url, {
-    method: editingPartnerId ? "PUT" : "POST",
-    body: form,
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(url, {
+      method: editingPartnerId ? "PUT" : "POST",
+      body: form,
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to save partner");
 
-  closePartnerModal();
-  showToast("Partner Added!", "success");
-  loadPartners();
+    closePartnerModal();
+    showToast(editingPartnerId ? "Partner Updated!" : "Partner Added!", "success");
+    loadPartners();
+  } catch (err) {
+    showToast(err.message || "Failed to save partner", "error");
+  }
 };
 
 // Delete Modal
@@ -370,14 +378,19 @@ function closeDeletePartnerModal() {
 }
 
 document.getElementById("confirmDeletePartnerBtn").onclick = async () => {
-  await fetch(`${PARTNERS_API}/${deletePartnerId}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(`${PARTNERS_API}/${deletePartnerId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to delete partner");
 
-  closeDeletePartnerModal();
-  showToast("Partner Deleted !", "success");
-  loadPartners();
+    closeDeletePartnerModal();
+    showToast("Partner Deleted!", "success");
+    loadPartners();
+  } catch (err) {
+    showToast(err.message || "Failed to delete partner", "error");
+  }
 };
 
 // Load initially
@@ -412,7 +425,7 @@ function updateStarUI(n) {
 async function loadSuccessStories() {
   try {
     const res = await fetch(SUCCESS_API, { credentials: "include" });
-
+    if (!res.ok) throw new Error("Failed to load success stories");
     const stories = await res.json();
 
     if (!stories.length) {
@@ -445,6 +458,7 @@ async function loadSuccessStories() {
     });
   } catch (err) {
     console.error("Failed to load success stories", err);
+    showToast("Failed to load success stories", "error");
   }
 }
 
@@ -464,8 +478,10 @@ document.getElementById("closeStoryModal").onclick = () =>
 
 /* Open Edit */
 async function openEditStory(id) {
-  const res = await fetch(`${SUCCESS_API}/${id}`, { credentials: "include" });
-  const s = await res.json();
+  try {
+    const res = await fetch(`${SUCCESS_API}/${id}`, { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to load story details");
+    const s = await res.json();
 
   activeStoryId = id;
   storyQuote.value = s.quote;
@@ -475,8 +491,11 @@ async function openEditStory(id) {
   selectedRating = s.rating;
   updateStarUI(s.rating);
 
-  storyModalTitle.innerText = "Edit Story";
-  storyModal.classList.remove("hidden");
+    storyModalTitle.innerText = "Edit Story";
+    storyModal.classList.remove("hidden");
+  } catch (err) {
+    showToast(err.message || "Failed to load story details", "error");
+  }
 }
 
 /* CREATE / UPDATE */
@@ -490,26 +509,36 @@ storyForm.onsubmit = async (e) => {
   fd.append("rating", selectedRating);
   if (storyImage.files[0]) fd.append("image", storyImage.files[0]);
 
-  await fetch(activeStoryId ? `${SUCCESS_API}/${activeStoryId}` : SUCCESS_API, {
-    method: activeStoryId ? "PUT" : "POST",
-    body: fd,
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(activeStoryId ? `${SUCCESS_API}/${activeStoryId}` : SUCCESS_API, {
+      method: activeStoryId ? "PUT" : "POST",
+      body: fd,
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to save story");
 
-  storyModal.classList.add("hidden");
-  showToast("Story Added!", "success");
-  loadSuccessStories();
+    storyModal.classList.add("hidden");
+    showToast(activeStoryId ? "Story Updated!" : "Story Added!", "success");
+    loadSuccessStories();
+  } catch (err) {
+    showToast(err.message || "Failed to save story", "error");
+  }
 };
 
 /* DELETE */
 async function deleteStory(id) {
   if (!confirm("Delete this story?")) return;
-  await fetch(`${SUCCESS_API}/${id}`, {
-    credentials: "include",
-    method: "DELETE",
-  });
-  showToast("Story Deleted!", "success");
-  loadSuccessStories();
+  try {
+    const res = await fetch(`${SUCCESS_API}/${id}`, {
+      credentials: "include",
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete story");
+    showToast("Story Deleted!", "success");
+    loadSuccessStories();
+  } catch (err) {
+    showToast(err.message || "Failed to delete story", "error");
+  }
 }
 
 /* 🔥 Load stories automatically when success section appears */
@@ -528,6 +557,7 @@ async function loadUsers() {
     const res = await fetch(USERS_API, {
       credentials: "include",
     });
+    if (!res.ok) throw new Error("Failed to load users");
 
     const users = await res.json();
 
@@ -552,10 +582,26 @@ async function loadUsers() {
         <td class="py-4 px-2 text-gray-300">${u.email}</td>
         <td class="py-4 px-2 text-gray-300 capitalize">${u.role}</td>
         <td class="py-4 px-2 text-gray-300">${u.phone}</td>
+        <td class="py-4 px-2 text-gray-300">
+          <div>${u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</div>
+          <div class="text-xs text-gray-400">${u.created_at ? new Date(u.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+        </td>
         <td class="py-4 px-2">
-          <button onclick="downloadCV(${u.id})"
+          <button onclick="viewResume('${u.id}')"
             class="text-blue-400 hover:text-blue-300 flex items-center gap-2 underline">
-            <i class="fas fa-file-download"></i> Download CV
+            <i class="fas fa-eye"></i> View Resume
+          </button>
+        </td>
+        <td class="py-4 px-2">
+          <button onclick="openScheduleModal('${u.id}', '${u.full_name}', '${u.email}')"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+            📅 Schedule
+          </button>
+        </td>
+        <td class="py-4 px-2">
+          <button onclick="openHistoryModal('${u.id}', '${u.full_name}')"
+            class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-sm transition flex items-center gap-2 border border-gray-600">
+            <i class="fas fa-history"></i> History
           </button>
         </td>
       `;
@@ -563,17 +609,198 @@ async function loadUsers() {
     });
   } catch (err) {
     console.error("Error loading users:", err);
+    showToast("Failed to load users", "error");
   }
 }
 
-/* DOWNLOAD CV */
-async function downloadCV(id) {
+/* ---------------- INTERVIEW & RESUME LOGIC ---------------- */
+
+/* RESUME PREVIEW */
+async function viewResume(userId) {
   try {
-    window.location.href = `${USERS_API}/${id}/cv`;
+    const res = await fetch(`${USERS_API}/${userId}/cv`, { method: 'HEAD' });
+    if (!res.ok) throw new Error("File not found or cannot be previewed");
+
+    const cvUrl = `${USERS_API}/${userId}/cv`;
+    
+    document.getElementById('resumeIframe').src = cvUrl;
+    document.getElementById('resumeIframe').classList.remove('hidden');
+    document.getElementById('resumeErrorState').classList.add('hidden');
+    document.getElementById('resumeFallbackLink').href = cvUrl;
+    document.getElementById('resumePreviewModal').classList.remove('hidden');
   } catch (err) {
-    alert("Failed to download CV");
+    showToast(err.message || "Failed to load CV", "error");
   }
 }
+
+function closeResumeModal() {
+  document.getElementById('resumePreviewModal').classList.add('hidden');
+  document.getElementById('resumeIframe').src = '';
+}
+
+/* SCHEDULE INTERVIEW MODAL */
+function openScheduleModal(userId, name, email) {
+  document.getElementById('schedUserId').value = userId;
+  document.getElementById('schedName').value = name;
+  document.getElementById('schedEmail').value = email;
+  document.getElementById('schedDate').value = '';
+  document.getElementById('schedTime').value = '';
+  document.getElementById('schedLink').value = '';
+  document.getElementById('schedDesc').value = '';
+  
+  document.querySelectorAll('#scheduleInterviewForm p.text-red-400').forEach(p => p.classList.add('hidden'));
+  
+  document.getElementById('scheduleInterviewModal').classList.remove('hidden');
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleInterviewModal').classList.add('hidden');
+}
+
+document.getElementById('scheduleInterviewForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  let valid = true;
+  const userId = document.getElementById('schedUserId').value;
+  const full_name = document.getElementById('schedName').value;
+  const email = document.getElementById('schedEmail').value;
+  const date = document.getElementById('schedDate').value;
+  const time = document.getElementById('schedTime').value;
+  const link = document.getElementById('schedLink').value;
+  const desc = document.getElementById('schedDesc').value;
+
+  if (!date) { document.getElementById('errDate').classList.remove('hidden'); valid = false; } else { document.getElementById('errDate').classList.add('hidden'); }
+  if (!time) { document.getElementById('errTime').classList.remove('hidden'); valid = false; } else { document.getElementById('errTime').classList.add('hidden'); }
+  if (!link || !/^https:\/\/meet\.google\.com\/[a-z0-9\-]+(\?.*)?$/.test(link)) { document.getElementById('errLink').classList.remove('hidden'); valid = false; } else { document.getElementById('errLink').classList.add('hidden'); }
+  if (!desc.trim()) { document.getElementById('errDesc').classList.remove('hidden'); valid = false; } else { document.getElementById('errDesc').classList.add('hidden'); }
+
+  if (!valid) return;
+
+  const btn = document.getElementById('schedSubmitBtn');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Invitation...';
+
+  try {
+    const INTERVIEWS_API = `${API_BASE}/api/interviews`;
+    const res = await fetch(`${INTERVIEWS_API}/schedule`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId, email, full_name, interviewDate: date, interviewTime: time, meetingLink: link, description: desc
+      })
+    });
+    
+    const contentType = res.headers.get("content-type");
+    let data = null;
+    let textResponse = "";
+
+    if (contentType && contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      textResponse = await res.text();
+      console.warn("Non-JSON response received:", textResponse);
+    }
+
+    if (!res.ok) {
+      console.error(`API Error: ${res.status} ${res.statusText}`, data || textResponse);
+      if (res.status === 409) {
+        showToast("An interview has already been scheduled for this candidate.", "error");
+      } else if (res.status === 404) {
+        showToast("Scheduling endpoint not found. Check server deployment.", "error");
+      } else {
+        throw new Error(data?.error || `Failed to schedule interview (${res.status})`);
+      }
+    } else {
+      showToast("Interview invitation sent successfully.", "success");
+      closeScheduleModal();
+    }
+  } catch (error) {
+    console.error("❌ Schedule Interview Error:", error);
+    showToast(error.message || "Failed to schedule interview.", "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+});
+
+/* INTERVIEW HISTORY MODAL */
+async function openHistoryModal(userId, name) {
+  document.getElementById('historyCandidateName').textContent = name;
+  const tbody = document.getElementById('historyTableBody');
+  const noHistory = document.getElementById('noHistoryMessage');
+  
+  tbody.innerHTML = '';
+  noHistory.classList.add('hidden');
+  document.getElementById('interviewHistoryModal').classList.remove('hidden');
+
+  try {
+    const INTERVIEWS_API = `${API_BASE}/api/interviews`;
+    const res = await fetch(`${INTERVIEWS_API}/${userId}`);
+    
+    const contentType = res.headers.get("content-type");
+    let responseData = null;
+    let textResponse = "";
+
+    if (contentType && contentType.includes("application/json")) {
+      responseData = await res.json();
+    } else {
+      textResponse = await res.text();
+      console.warn("Non-JSON response received:", textResponse);
+    }
+
+    if (!res.ok) {
+      console.error(`API Error: ${res.status} ${res.statusText}`, responseData || textResponse);
+      if (res.status === 404) {
+         throw new Error("History endpoint not found. Check server deployment.");
+      }
+      throw new Error(responseData?.error || `Failed to fetch history (${res.status})`);
+    }
+
+    const historyArray = responseData?.history || [];
+
+    if (historyArray.length === 0) {
+      noHistory.classList.remove('hidden');
+      noHistory.innerHTML = '<i class="fas fa-inbox text-4xl mb-3 opacity-50"></i><p>No interview history available.</p>';
+    } else {
+      historyArray.forEach(h => {
+        const row = document.createElement('tr');
+        const formattedDate = new Date(h.interviewDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        
+        let statusBadge = '';
+        if (h.status === 'Scheduled') statusBadge = '<span class="px-2.5 py-1 bg-blue-600/20 text-blue-400 rounded-full text-xs font-medium border border-blue-600/30">Scheduled</span>';
+        else if (h.status === 'Completed') statusBadge = '<span class="px-2.5 py-1 bg-green-600/20 text-green-400 rounded-full text-xs font-medium border border-green-600/30">Completed</span>';
+        else if (h.status === 'Cancelled') statusBadge = '<span class="px-2.5 py-1 bg-red-600/20 text-red-400 rounded-full text-xs font-medium border border-red-600/30">Cancelled</span>';
+        else if (h.status === 'Rescheduled') statusBadge = '<span class="px-2.5 py-1 bg-yellow-600/20 text-yellow-400 rounded-full text-xs font-medium border border-yellow-600/30">Rescheduled</span>';
+        else statusBadge = `<span class="px-2.5 py-1 bg-gray-600/20 text-gray-400 rounded-full text-xs font-medium">${h.status}</span>`;
+
+        row.innerHTML = `
+          <td class="py-3 px-2 whitespace-nowrap">
+            <div class="font-medium text-gray-200">${formattedDate}</div>
+            <div class="text-gray-400 text-xs">${h.interviewTime}</div>
+          </td>
+          <td class="py-3 px-2">${statusBadge}</td>
+          <td class="py-3 px-2">
+            <a href="${h.meetingLink}" target="_blank" class="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1.5 w-max">
+              <i class="fas fa-external-link-alt text-xs"></i> Meet Link
+            </a>
+          </td>
+          <td class="py-3 px-2 text-gray-300 min-w-[200px]">${h.description}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+  } catch (err) {
+    console.error("❌ Failed to load history:", err);
+    noHistory.classList.remove('hidden');
+    noHistory.innerHTML = `<i class="fas fa-exclamation-triangle text-4xl mb-3 text-red-400/50"></i><p class="text-red-400">${err.message || 'Failed to load interview history.'}</p>`;
+  }
+}
+
+function closeHistoryModal() {
+  document.getElementById('interviewHistoryModal').classList.add('hidden');
+}
+
 
 /* ---------------- EXPERT MEETINGS ---------------- */
 const MEETINGS_API = `${API_BASE}/api/consultations`;
@@ -596,6 +823,7 @@ async function loadMeetings() {
     const res = await fetch(MEETINGS_API, {
       credentials: "include",
     });
+    if (!res.ok) throw new Error("Failed to load meetings");
 
     const data = await res.json();
 
@@ -656,21 +884,25 @@ async function loadMeetings() {
     });
   } catch (err) {
     console.error("❌ Failed to fetch meetings", err);
+    showToast("Failed to fetch meetings", "error");
   }
 }
 
 /* UPDATE STATUS */
 async function updateMeetingStatus(id, status) {
   try {
-    await fetch(`${MEETINGS_API}/${id}/status`, {
+    const res = await fetch(`${MEETINGS_API}/${id}/status`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ status }),
     });
+    if (!res.ok) throw new Error("Failed to update status");
     loadMeetings();
+    showToast("Meeting status updated!", "success");
   } catch (err) {
     console.error("❌ Failed to update meeting status", err);
+    showToast(err.message || "Failed to update meeting status", "error");
   }
 }
 
@@ -702,6 +934,7 @@ async function loadOverviewStats() {
     document.getElementById("totalUsersCount").textContent = data.totalUsers;
   } catch (err) {
     console.error("Overview Stats Error:", err);
+    showToast("Failed to fetch overview stats", "error");
   }
 }
 
@@ -767,8 +1000,6 @@ async function handleAdminLogin(event) {
     // 🔥 Important: Show dashboard after login
     setTimeout(() => {
       showAdminDashboard(); // <-- your function that hides login & shows dashboard
-      loadOverviewStats(); // <-- call stats API immediately
-      updateLastUpdatedTime(); // <-- update timestamp immediately
     }, 500);
   } catch (err) {
     showToast("Network error ― please try again", "error");
@@ -815,8 +1046,6 @@ function showAdminDashboard() {
 
 const SITE_STATS_API = `${API_BASE}/api/site_stats`;
 async function saveStats() {
-  const apiURL = "http://localhost:5000/api/site_stats";
-
   // Collect all inputs inside siteStatsSection
   const inputs = document.querySelectorAll("#siteStatsSection input");
 
@@ -843,11 +1072,11 @@ async function saveStats() {
     if (res.ok) {
       showToast("Stats Saved!", "success");
     } else {
-      showToast("Something went wrong. Try again!", "error");
+      throw new Error(data.error || "Failed to save stats");
     }
   } catch (err) {
     console.error("Save error:", err);
-    alert("Something went wrong");
+    showToast(err.message || "Something went wrong", "error");
   }
 }
 
@@ -894,5 +1123,6 @@ async function loadSiteStats() {
     console.log("Site stats loaded");
   } catch (err) {
     console.error("Site stats GET error:", err);
+    showToast("Failed to load site stats", "error");
   }
 }

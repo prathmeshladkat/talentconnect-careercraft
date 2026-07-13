@@ -1001,7 +1001,10 @@
                     <th class="py-3 px-2">EMAIL</th>
                     <th class="py-3 px-2">ROLE</th>
                     <th class="py-3 px-2">PHONE</th>
-                    <th class="py-3 px-2">CV</th>
+                    <th class="py-3 px-2">REGISTRATION TIME</th>
+                    <th class="py-3 px-2">CV / RESUME</th>
+                    <th class="py-3 px-2">SCHEDULE INTERVIEW</th>
+                    <th class="py-3 px-2">INTERVIEW HISTORY</th>
                   </tr>
                 </thead>
                 <tbody id="usersTableBody"></tbody>
@@ -1009,6 +1012,127 @@
             </div>
           </div>
         </section>
+
+        <!-- ========================================= -->
+        <!-- RESUME PREVIEW MODAL -->
+        <!-- ========================================= -->
+        <div id="resumePreviewModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
+          <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col border border-gray-700">
+            <div class="flex justify-between items-center p-4 border-b border-gray-700">
+              <h3 class="text-xl font-bold text-white">Resume Preview</h3>
+              <button onclick="closeResumeModal()" class="text-gray-400 hover:text-white transition">
+                <i class="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+            <div class="flex-1 p-4 overflow-hidden relative">
+              <iframe id="resumeIframe" class="w-full h-full bg-white rounded" src=""></iframe>
+              <div id="resumeErrorState" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-center">
+                <i class="fas fa-file-pdf text-6xl text-gray-600 mb-4"></i>
+                <p class="text-gray-400 mb-4">This file type cannot be previewed directly.</p>
+                <a id="resumeFallbackLink" href="#" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition font-medium">
+                  Open in New Tab
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================= -->
+        <!-- SCHEDULE INTERVIEW MODAL -->
+        <!-- ========================================= -->
+        <div id="scheduleInterviewModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div class="bg-gray-800 rounded-xl shadow-xl w-full max-w-lg border border-gray-700 overflow-hidden">
+            <div class="bg-gray-900 p-4 border-b border-gray-700 flex justify-between items-center">
+              <h3 class="text-xl font-bold text-white"><i class="fas fa-calendar-alt text-blue-400 mr-2"></i> Schedule Interview</h3>
+              <button onclick="closeScheduleModal()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="scheduleInterviewForm" class="p-6 space-y-4">
+              <input type="hidden" id="schedUserId" />
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-gray-400 text-xs font-semibold mb-1 block">Candidate Name</label>
+                  <input type="text" id="schedName" readonly class="w-full bg-gray-700/50 border border-gray-600 rounded p-2 text-gray-300 focus:outline-none cursor-not-allowed" />
+                </div>
+                <div>
+                  <label class="text-gray-400 text-xs font-semibold mb-1 block">Candidate Email</label>
+                  <input type="email" id="schedEmail" readonly class="w-full bg-gray-700/50 border border-gray-600 rounded p-2 text-gray-300 focus:outline-none cursor-not-allowed" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-gray-300 text-sm font-semibold mb-1 block">Interview Date *</label>
+                  <input type="date" id="schedDate" required class="w-full bg-gray-700 border border-gray-600 rounded p-2.5 text-white focus:border-blue-500 focus:outline-none transition" />
+                  <p class="text-red-400 text-xs mt-1 hidden" id="errDate">Date is required</p>
+                </div>
+                <div>
+                  <label class="text-gray-300 text-sm font-semibold mb-1 block">Interview Time *</label>
+                  <input type="time" id="schedTime" required class="w-full bg-gray-700 border border-gray-600 rounded p-2.5 text-white focus:border-blue-500 focus:outline-none transition" />
+                  <p class="text-red-400 text-xs mt-1 hidden" id="errTime">Time is required</p>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-gray-300 text-sm font-semibold mb-1 block">Google Meet Link *</label>
+                <div class="relative">
+                  <i class="fas fa-video absolute left-3 top-3 text-gray-400"></i>
+                  <input type="url" id="schedLink" placeholder="https://meet.google.com/xxx-xxxx-xxx" required class="w-full pl-9 pr-3 py-2.5 bg-gray-700 border border-gray-600 rounded text-white focus:border-blue-500 focus:outline-none transition" />
+                </div>
+                <p class="text-red-400 text-xs mt-1 hidden" id="errLink">Valid Google Meet link required</p>
+              </div>
+
+              <div>
+                <label class="text-gray-300 text-sm font-semibold mb-1 block">Interview Description *</label>
+                <textarea id="schedDesc" rows="3" placeholder="Interview instructions, rounds, etc." required class="w-full bg-gray-700 border border-gray-600 rounded p-2.5 text-white focus:border-blue-500 focus:outline-none transition resize-none"></textarea>
+                <p class="text-red-400 text-xs mt-1 hidden" id="errDesc">Description is required</p>
+              </div>
+
+              <div class="pt-4 flex justify-end gap-3 border-t border-gray-700">
+                <button type="button" onclick="closeScheduleModal()" class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-medium">Cancel</button>
+                <button type="submit" id="schedSubmitBtn" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium flex items-center gap-2">
+                  <i class="fas fa-paper-plane"></i> Send Invitation
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ========================================= -->
+        <!-- INTERVIEW HISTORY MODAL -->
+        <!-- ========================================= -->
+        <div id="interviewHistoryModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div class="bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl border border-gray-700 overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="bg-gray-900 p-5 border-b border-gray-700 flex justify-between items-center">
+              <div>
+                <h3 class="text-xl font-bold text-white"><i class="fas fa-history text-blue-400 mr-2"></i> Interview History</h3>
+                <p class="text-gray-400 text-sm mt-1" id="historyCandidateName"></p>
+              </div>
+              <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                  <thead>
+                    <tr class="text-gray-400 border-b border-gray-700">
+                      <th class="pb-3 px-2 font-semibold">DATE & TIME</th>
+                      <th class="pb-3 px-2 font-semibold">STATUS</th>
+                      <th class="pb-3 px-2 font-semibold">MEET LINK</th>
+                      <th class="pb-3 px-2 font-semibold">DESCRIPTION</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyTableBody" class="text-gray-300 divide-y divide-gray-700/50">
+                    <!-- History rows go here -->
+                  </tbody>
+                </table>
+              </div>
+              <div id="noHistoryMessage" class="hidden py-10 text-center text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                <p>No interview history available for this candidate.</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- ⭐ EXPERT MEETINGS SECTION -->
         <section id="meetingsSection" class="hidden">
