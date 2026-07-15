@@ -18,52 +18,44 @@ import adminsRouter from "./routes/admins.js";
 import usersRouter from "./routes/users.js";
 import consultationsRouter from "./routes/consultations.js";
 import overviewRouter from "./routes/overview.js";
-
+import interviewsRouter from "./routes/interviews.js";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-
-
+/* ---------------------- CORS ---------------------- */
 const allowedOrigins = [
-  "https://admin.careerkrafter.in",
-  "https://careerkrafter.in",
-  "https://www.careerkrafter.in",
-  "http://31.97.232.215:9090",
-  "http://localhost:5500",
+ "https://admin.careerkrafter.in",
+   "https://careerkrafter.in",
+  "https://www.careerkrafter.in", 
+"https://talentconnects.onrender.com",
+  "https://talentconnect-fd.onrender.com",
+  "http://localhost:3000",
+  "http://localhost:5000",
   "http://127.0.0.1:5500",
+  "http://localhost:5501",
+  "https://talentconnect-careercraft.vercel.app", // your Vercel frontend
 ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
-    );
-  }
-
-  // ✅ CRITICAL: handle preflight here
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
-
+// ⚠ IMPORTANT: 1 single CORS middleware — allow local static HTML (origin = null)
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow localhost file:// & 127.0.0.1:5500
+      const clean = origin.replace(/\/$/, "");
+      if (allowedOrigins.includes(clean)) return callback(null, true);
+      console.warn("❌ Blocked by CORS →", origin);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 /* ---------------------- Middleware ---------------------- */
-// ❌ REMOVED - Don't apply globally, it breaks multer!
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
 /* ---------------------- DB Connection ---------------------- */
@@ -118,24 +110,18 @@ app.get("/api/download-cv/:userId", async (req, res) => {
   }
 });
 
-/* ---------------------- Debug Middleware ---------------------- */
-
-
 /* ---------------------- API Routes ---------------------- */
-// ✅ Routes with file uploads (multer handles body parsing)
 app.use("/api/courses", coursesRouter);
+app.use("/api/faqs", faqsRouter);
 app.use("/api/partners", partnersRouter);
 app.use("/api/success_stories", successStoriesRouter);
-
-// ✅ Routes that need JSON parsing
-app.use("/api/faqs", express.json(), faqsRouter);
-app.use("/api/site_stats", express.json(), siteStatsRouter);
-app.use("/api/registrations", express.json(), registrationsRouter);
-app.use("/api/admins", express.json(), adminsRouter);
-app.use("/api/users", express.json(), usersRouter);
-app.use("/api/consultations", express.json(), consultationsRouter);
-app.use("/api/overview", express.json(), overviewRouter);
-
+app.use("/api/site_stats", siteStatsRouter);
+app.use("/api/registrations", registrationsRouter);
+app.use("/api/admins", adminsRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/consultations", consultationsRouter);
+app.use("/api/overview", overviewRouter);
+app.use("/api/interviews", interviewsRouter);
 /* ---------------------- Health Check ---------------------- */
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 
@@ -149,9 +135,14 @@ if (fs.existsSync(path.join(frontendPath, "index.html"))) {
 }
 
 /* ---------------------- Error Handler ---------------------- */
+// Ensure 404s for API routes return JSON, not HTML
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ success: false, error: `Route not found: ${req.method} ${req.originalUrl}` });
+});
+
 app.use((err, req, res, next) => {
   console.error("❌ Internal Error:", err.message);
-  res.status(500).json({ error: err.message });
+  res.status(500).json({ success: false, error: err.message });
 });
 
 /* ---------------------- Start Server ---------------------- */
