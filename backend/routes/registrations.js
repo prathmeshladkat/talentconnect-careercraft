@@ -154,8 +154,7 @@ router.get('/:id/cv/preview', async (req, res) => {
     
     res.set({
       'Content-Type': contentType,
-      'Content-Disposition': `inline; filename="${safeFilename}"`, // inline for preview
-      'X-Frame-Options': 'SAMEORIGIN' // Allow iframe embedding
+      'Content-Disposition': `inline; filename="${safeFilename}"` // inline for preview
     });
     
     res.send(Buffer.from(buffer));

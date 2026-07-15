@@ -618,15 +618,29 @@ async function loadUsers() {
 /* RESUME PREVIEW */
 async function viewResume(userId) {
   try {
-    const res = await fetch(`${USERS_API}/${userId}/cv`, { method: 'HEAD' });
+    const res = await fetch(`${USERS_API}/${userId}/cv/preview`, { method: 'HEAD' });
     if (!res.ok) throw new Error("File not found or cannot be previewed");
 
-    const cvUrl = `${USERS_API}/${userId}/cv`;
+    const cvUrl = `${USERS_API}/${userId}/cv/preview`;
+    const downloadUrl = `${USERS_API}/${userId}/cv`;
     
-    document.getElementById('resumeIframe').src = cvUrl;
-    document.getElementById('resumeIframe').classList.remove('hidden');
-    document.getElementById('resumeErrorState').classList.add('hidden');
-    document.getElementById('resumeFallbackLink').href = cvUrl;
+    const contentType = res.headers.get('content-type') || '';
+    
+    const downloadBtn = document.getElementById('downloadResumeBtn');
+    if (downloadBtn) {
+      downloadBtn.href = downloadUrl;
+    }
+
+    if (contentType.includes('msword') || contentType.includes('wordprocessingml') || contentType.includes('octet-stream')) {
+      document.getElementById('resumeIframe').src = '';
+      document.getElementById('resumeIframe').classList.add('hidden');
+      document.getElementById('resumeErrorState').classList.remove('hidden');
+    } else {
+      document.getElementById('resumeIframe').src = cvUrl;
+      document.getElementById('resumeIframe').classList.remove('hidden');
+      document.getElementById('resumeErrorState').classList.add('hidden');
+    }
+
     document.getElementById('resumePreviewModal').classList.remove('hidden');
   } catch (err) {
     showToast(err.message || "Failed to load CV", "error");
@@ -643,7 +657,15 @@ function openScheduleModal(userId, name, email) {
   document.getElementById('schedUserId').value = userId;
   document.getElementById('schedName').value = name;
   document.getElementById('schedEmail').value = email;
-  document.getElementById('schedDate').value = '';
+  
+  const dateInput = document.getElementById('schedDate');
+  dateInput.value = '';
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  dateInput.min = `${year}-${month}-${day}`;
+  
   document.getElementById('schedTime').value = '';
   document.getElementById('schedLink').value = '';
   document.getElementById('schedDesc').value = '';
@@ -669,8 +691,45 @@ document.getElementById('scheduleInterviewForm').addEventListener('submit', asyn
   const link = document.getElementById('schedLink').value;
   const desc = document.getElementById('schedDesc').value;
 
-  if (!date) { document.getElementById('errDate').classList.remove('hidden'); valid = false; } else { document.getElementById('errDate').classList.add('hidden'); }
-  if (!time) { document.getElementById('errTime').classList.remove('hidden'); valid = false; } else { document.getElementById('errTime').classList.add('hidden'); }
+  let dateError = document.getElementById('errDate');
+  let timeError = document.getElementById('errTime');
+  dateError.innerText = "Date is required";
+  timeError.innerText = "Time is required";
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
+
+  if (!date) { 
+    dateError.classList.remove('hidden'); 
+    valid = false; 
+  } else if (date < todayStr) {
+    dateError.innerText = "Interview date cannot be in the past.";
+    dateError.classList.remove('hidden');
+    valid = false;
+  } else { 
+    dateError.classList.add('hidden'); 
+  }
+
+  if (!time) { 
+    timeError.classList.remove('hidden'); 
+    valid = false; 
+  } else if (date === todayStr) {
+    const [hours, minutes] = time.split(':');
+    const selectedTime = new Date();
+    selectedTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+    if (selectedTime < new Date()) {
+      timeError.innerText = "Interview time must be in the future.";
+      timeError.classList.remove('hidden');
+      valid = false;
+    } else {
+      timeError.classList.add('hidden');
+    }
+  } else { 
+    timeError.classList.add('hidden'); 
+  }
   if (!link || !/^https:\/\/meet\.google\.com\/[a-z0-9\-]+(\?.*)?$/.test(link)) { document.getElementById('errLink').classList.remove('hidden'); valid = false; } else { document.getElementById('errLink').classList.add('hidden'); }
   if (!desc.trim()) { document.getElementById('errDesc').classList.remove('hidden'); valid = false; } else { document.getElementById('errDesc').classList.add('hidden'); }
 

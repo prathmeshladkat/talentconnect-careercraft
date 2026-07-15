@@ -9,7 +9,7 @@ const router = express.Router();
  * POST /api/interviews/schedule
  */
 router.post('/schedule', async (req, res) => {
-  console.log(`[POST /api/interviews/schedule] Incoming request`);
+  console.log(`[POST /api/interviews/schedule] Request received`);
   console.log(`[POST /api/interviews/schedule] Request body:`, req.body);
   try {
     const { userId, email, full_name, interviewDate, interviewTime, meetingLink, description } = req.body;
@@ -17,6 +17,28 @@ router.post('/schedule', async (req, res) => {
     if (!userId || !email || !full_name || !interviewDate || !interviewTime || !meetingLink || !description) {
       console.warn(`[POST /api/interviews/schedule] Validation failed: missing fields`);
       return res.status(400).json({ success: false, error: 'Validation failed. All fields are required.' });
+    }
+
+    // Server-side Date/Time validation
+    const now = new Date();
+    const serverYear = now.getFullYear();
+    const serverMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const serverDay = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${serverYear}-${serverMonth}-${serverDay}`;
+
+    if (interviewDate < todayStr) {
+      console.warn(`[POST /api/interviews/schedule] Validation failed: past date`);
+      return res.status(400).json({ success: false, error: 'Interview date and time must be in the future.' });
+    }
+
+    if (interviewDate === todayStr) {
+      const [hours, minutes] = interviewTime.split(':');
+      const interviewDateObj = new Date();
+      interviewDateObj.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+      if (interviewDateObj < now) {
+        console.warn(`[POST /api/interviews/schedule] Validation failed: past time today`);
+        return res.status(400).json({ success: false, error: 'Interview date and time must be in the future.' });
+      }
     }
 
     // Check for existing scheduled interview for this user
@@ -39,11 +61,12 @@ router.post('/schedule', async (req, res) => {
        VALUES (?, ?, ?, ?, ?, 'Scheduled')`,
       [userId, interviewDate, interviewTime, meetingLink, description]
     );
-    console.log(`[POST /api/interviews/schedule] Interview saved with ID: ${result.insertId}`);
+    console.log(`[POST /api/interviews/schedule] Interview saved`);
 
     // Send email
     try {
-      console.log(`[POST /api/interviews/schedule] Triggering email delivery`);
+      console.log(`[POST /api/interviews/schedule] Candidate email: ${email}`);
+      console.log(`[POST /api/interviews/schedule] Email sending started`);
       await sendInterviewEmail({
         email,
         full_name,
@@ -53,13 +76,17 @@ router.post('/schedule', async (req, res) => {
         description
       });
       console.log(`[POST /api/interviews/schedule] Email sent successfully`);
+      
+      const responseJson = { success: true, message: 'Interview invitation sent successfully.', interviewId: result.insertId };
+      console.log(`[POST /api/interviews/schedule] Returned JSON:`, responseJson);
+      return res.status(201).json(responseJson);
     } catch (emailError) {
       console.error(`[POST /api/interviews/schedule] Email sending failed:`, emailError);
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Interview saved, but email sending failed. ' + (emailError.message || 'Check email configuration.') 
+      });
     }
-
-    const responseJson = { success: true, message: 'Interview invitation sent successfully.', interviewId: result.insertId };
-    console.log(`[POST /api/interviews/schedule] Returned JSON:`, responseJson);
-    res.status(201).json(responseJson);
   } catch (err) {
     console.error(`[POST /api/interviews/schedule] ❌ Internal server error:`, err);
     res.status(500).json({ success: false, error: 'Internal server error.' });
