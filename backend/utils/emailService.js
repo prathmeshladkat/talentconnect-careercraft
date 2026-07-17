@@ -1,16 +1,50 @@
 // utils/emailService.js
 import sgMail from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Initialize SendGrid with API key
-if (!process.env.SENDGRID_API_KEY) {
-  console.error('❌ SENDGRID_API_KEY is not set in environment variables');
-} else {
+let usingSendGrid = false;
+let transporter = null;
+
+if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log('✅ SendGrid initialized');
+  usingSendGrid = true;
+  console.log('✅ Email service initialized (SendGrid)');
+} else if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  console.log('✅ Email service initialized (Nodemailer)');
+} else {
+  console.error('❌ Email sending failed. Missing required environment variables. Please set SENDGRID_API_KEY or both EMAIL_USER and EMAIL_PASS.');
 }
+
+const sendEmail = async (msg) => {
+  if (usingSendGrid) {
+    const res = await sgMail.send(msg);
+    // Return standard format mimicking SendGrid response structure for compatibility
+    return Array.isArray(res) ? res : [res];
+  } else if (transporter) {
+    const mailOptions = {
+      from: `"${msg.from.name}" <${msg.from.email}>`,
+      to: msg.to,
+      subject: msg.subject,
+      html: msg.html,
+      text: msg.text
+    };
+    const res = await transporter.sendMail(mailOptions);
+    // Mock SendGrid response format
+    return [{ headers: { 'x-message-id': res.messageId }, statusCode: 202 }];
+  } else {
+    throw new Error('Email service is not configured (missing env vars)');
+  }
+};
 
 /**
  * Send a consultation confirmation email to the user
@@ -76,7 +110,7 @@ export const sendConsultationConfirmationEmail = async (userDetails) => {
 
     console.log(`${logPrefix} Sending to: ${msg.to}, From: ${msg.from.email}`);
     
-    const response = await sgMail.send(msg);
+    const response = await sendEmail(msg);
     console.log(`${logPrefix} ✅ Success! Message ID:`, response[0]?.headers?.['x-message-id']);
     
     return {
@@ -150,7 +184,7 @@ export const sendAdminNotificationEmail = async (userDetails) => {
     };
 
     console.log(`${logPrefix} Sending to admin: ${msg.to}`);
-    const response = await sgMail.send(msg);
+    const response = await sendEmail(msg);
     console.log(`${logPrefix} ✅ Notification sent successfully!`);
     
     return {
@@ -287,7 +321,7 @@ This is an automated message. Please do not reply to this email.
     };
 
     console.log(`${logPrefix} Sending email to: ${msg.to}`);
-    await sgMail.send(msg);
+    await sendEmail(msg);
     console.log(`${logPrefix} Email sent successfully to: ${msg.to}`);
     
     return { success: true, message: 'Welcome email sent successfully' };
@@ -376,7 +410,11 @@ CareerKrafter Team`
     };
 
     console.log(`${logPrefix} Sending to: ${msg.to}`);
+<<<<<<< HEAD
     await sgMail.send(msg);
+=======
+    await sendEmail(msg);
+>>>>>>> origin/main
     console.log(`${logPrefix} ✅ Success!`);
     return { success: true };
   } catch (error) {
