@@ -25,10 +25,10 @@ const PORT = process.env.PORT || 5000;
 
 /* ---------------------- CORS ---------------------- */
 const allowedOrigins = [
- "https://admin.careerkrafter.in",
-   "https://careerkrafter.in",
-  "https://www.careerkrafter.in", 
-"https://talentconnects.onrender.com",
+  "https://admin.careerkrafter.in",
+  "https://careerkrafter.in",
+  "https://www.careerkrafter.in",
+  "https://talentconnects.onrender.com",
   "https://talentconnect-fd.onrender.com",
   "http://localhost:3000",
   "http://localhost:5000",
@@ -147,3 +147,5 @@ app.use((err, req, res, next) => {
 
 /* ---------------------- Start Server ---------------------- */
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// console.log("SendGrid key loaded:", !!process.env.SENDGRID_API_KEY);
+// console.log("EMAIL_FROM:", process.env.EMAIL_FROM);

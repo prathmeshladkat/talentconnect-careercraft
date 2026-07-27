@@ -53,6 +53,14 @@ function showSection(section) {
   if (section === "users") loadUsers();
   if (section === "meetings") loadMeetings();
   if (section === "siteStats") loadSiteStats();
+
+  const scrollBtns = document.getElementById("usersScrollBtns");
+  if (scrollBtns) {
+    if (section === "users") scrollBtns.classList.remove("hidden");
+    else scrollBtns.classList.add("hidden");
+  }
+
+  localStorage.setItem("activeDashboardSection", section);
 }
 
 // convert "siteStats" → "SiteStats"
@@ -62,7 +70,10 @@ function capitalize(str) {
 
 // Show overview first when page loads
 document.addEventListener("DOMContentLoaded", () => {
-  showSection("overview");
+  const savedSection = localStorage.getItem("activeDashboardSection");
+  if (!savedSection) {
+    showSection("overview");
+  }
 });
 
 // Courses management JS
@@ -216,12 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderCourses(courses);
 
-    // Add emoji to Course Management title
-    if (courses.length && courses[0].icon) {
-      if (!sectionIconHolder.innerHTML.includes(courses[0].icon)) {
-        sectionIconHolder.innerHTML = `<span class="mr-2">${courses[0].icon}</span>Course Management`;
-      }
-    }
+    // Removed to keep only "Course Management" as per Task 3
   }
 
   function renderCourses(data) {
@@ -238,7 +244,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const row = document.createElement("tr");
       row.className = "courses-row";
       row.innerHTML = `
-       <td class="p-4 text-2xl text-center">${c.icon}</td>
+       <td class="p-4 text-center">
+         ${c.icon && c.icon.startsWith('http') 
+           ? `<img src="${c.icon}" alt="Course Icon" style="width:45px; height:45px; object-fit:contain; border-radius:6px; display:inline-block;" onerror="this.outerHTML='<span class=\\'text-2xl\\'>📁</span>'">`
+           : `<span class="text-2xl">${c.icon || "📁"}</span>`}
+       </td>
 
         <td class="p-4">${c.title}</td>
         <td class="p-4">${c.description}</td>
@@ -578,8 +588,8 @@ async function loadUsers() {
         "border-b border-gray-700 hover:bg-gray-700/40 transition cursor-pointer";
 
       row.innerHTML = `
-        <td class="py-4 px-2 text-gray-300">${u.full_name}</td>
-        <td class="py-4 px-2 text-gray-300">${u.email}</td>
+        <td class="py-4 px-2 text-gray-300 sticky left-0 bg-gray-800 z-10 min-w-[200px] border-r border-gray-700/50">${u.full_name}</td>
+        <td class="py-4 px-2 text-gray-300 sticky left-[200px] bg-gray-800 z-10 min-w-[250px] border-r border-gray-700/50">${u.email}</td>
         <td class="py-4 px-2 text-gray-300 capitalize">${u.role}</td>
         <td class="py-4 px-2 text-gray-300">${u.phone}</td>
         <td class="py-4 px-2 text-gray-300">
@@ -666,7 +676,13 @@ function openScheduleModal(userId, name, email) {
   const day = String(today.getDate()).padStart(2, '0');
   dateInput.min = `${year}-${month}-${day}`;
   
-  document.getElementById('schedTime').value = '';
+  const hourEl = document.getElementById('schedHour');
+  const minEl = document.getElementById('schedMinute');
+  const ampmEl = document.getElementById('schedAmPm');
+  if (hourEl) hourEl.value = '09';
+  if (minEl) minEl.value = '00';
+  if (ampmEl) ampmEl.value = 'AM';
+
   document.getElementById('schedLink').value = '';
   document.getElementById('schedDesc').value = '';
   
@@ -687,7 +703,19 @@ document.getElementById('scheduleInterviewForm').addEventListener('submit', asyn
   const full_name = document.getElementById('schedName').value;
   const email = document.getElementById('schedEmail').value;
   const date = document.getElementById('schedDate').value;
-  const time = document.getElementById('schedTime').value;
+  
+  const hourStr = document.getElementById('schedHour').value;
+  const minStr = document.getElementById('schedMinute').value;
+  const ampmStr = document.getElementById('schedAmPm').value;
+  
+  let time = "";
+  if (hourStr && minStr && ampmStr) {
+    let hNum = parseInt(hourStr, 10);
+    if (ampmStr === "PM" && hNum < 12) hNum += 12;
+    if (ampmStr === "AM" && hNum === 12) hNum = 0;
+    time = `${String(hNum).padStart(2, "0")}:${minStr}`;
+  }
+
   const link = document.getElementById('schedLink').value;
   const desc = document.getElementById('schedDesc').value;
 
@@ -1024,6 +1052,7 @@ function updateLastUpdatedTime() {
 }
 
 function logout() {
+  localStorage.removeItem("adminAuth");
   window.location.href = "index.html";
 }
 
@@ -1185,3 +1214,54 @@ async function loadSiteStats() {
     showToast("Failed to load site stats", "error");
   }
 }
+
+window.scrollUsersTable = function(amount) {
+  const wrapper = document.getElementById("bottomScrollWrapper");
+  if (wrapper) {
+    wrapper.scrollBy({ left: amount, behavior: 'smooth' });
+  }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  const authData = localStorage.getItem("adminAuth");
+  if (authData) {
+    try {
+      const parsed = JSON.parse(authData);
+      if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+        showAdminDashboard();
+        const savedSection = localStorage.getItem("activeDashboardSection");
+        if (savedSection) {
+          showSection(savedSection);
+        }
+      } else {
+        localStorage.removeItem("adminAuth");
+      }
+    } catch (e) {
+      localStorage.removeItem("adminAuth");
+    }
+  }
+
+  const hourSelect = document.getElementById("schedHour");
+  if (hourSelect) {
+    for (let i = 1; i <= 12; i++) {
+      const val = String(i).padStart(2, "0");
+      const option = document.createElement("option");
+      option.value = val;
+      option.textContent = val;
+      hourSelect.appendChild(option);
+    }
+    hourSelect.value = "09";
+  }
+  
+  const minSelect = document.getElementById("schedMinute");
+  if (minSelect) {
+    for (let i = 0; i <= 59; i++) {
+      const val = String(i).padStart(2, "0");
+      const option = document.createElement("option");
+      option.value = val;
+      option.textContent = val;
+      minSelect.appendChild(option);
+    }
+    minSelect.value = "00";
+  }
+});

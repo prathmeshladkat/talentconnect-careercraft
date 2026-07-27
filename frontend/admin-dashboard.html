@@ -992,13 +992,23 @@
               </div>
             </div>
 
+            <!-- Floating Scroll Controllers -->
+            <div id="usersScrollBtns" class="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 hidden">
+              <button type="button" onclick="scrollUsersTable(-300)" class="w-10 h-10 bg-gray-700/80 hover:bg-gray-600 text-white rounded-full flex items-center justify-center shadow-lg border border-gray-600 backdrop-blur-sm transition cursor-pointer" title="Scroll Left">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button type="button" onclick="scrollUsersTable(300)" class="w-10 h-10 bg-gray-700/80 hover:bg-gray-600 text-white rounded-full flex items-center justify-center shadow-lg border border-gray-600 backdrop-blur-sm transition cursor-pointer" title="Scroll Right">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+            
             <!-- Users Table -->
-            <div class="overflow-x-auto">
+            <div id="bottomScrollWrapper" class="overflow-x-auto relative scroll-smooth">
               <table class="w-full text-left whitespace-nowrap">
                 <thead>
                   <tr class="text-gray-400 border-b border-gray-700">
-                    <th class="py-3 px-2">FULL NAME</th>
-                    <th class="py-3 px-2">EMAIL</th>
+                    <th class="py-3 px-2 sticky left-0 bg-gray-800 z-10 min-w-[200px]">FULL NAME</th>
+                    <th class="py-3 px-2 sticky left-[200px] bg-gray-800 z-10 min-w-[250px]">EMAIL</th>
                     <th class="py-3 px-2">ROLE</th>
                     <th class="py-3 px-2">PHONE</th>
                     <th class="py-3 px-2">REGISTRATION TIME</th>
@@ -1070,7 +1080,14 @@
                 </div>
                 <div>
                   <label class="text-gray-300 text-sm font-semibold mb-1 block">Interview Time *</label>
-                  <input type="time" id="schedTime" required class="w-full bg-gray-700 border border-gray-600 rounded p-2.5 text-white focus:border-blue-500 focus:outline-none transition" />
+                  <div class="flex gap-2">
+                    <select id="schedHour" class="w-full bg-gray-700 border border-gray-600 rounded p-2.5 text-white focus:border-blue-500 focus:outline-none transition"></select>
+                    <select id="schedMinute" class="w-full bg-gray-700 border border-gray-600 rounded p-2.5 text-white focus:border-blue-500 focus:outline-none transition"></select>
+                    <select id="schedAmPm" class="w-full bg-gray-700 border border-gray-600 rounded p-2.5 text-white focus:border-blue-500 focus:outline-none transition">
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
                   <p class="text-red-400 text-xs mt-1 hidden" id="errTime">Time is required</p>
                 </div>
               </div>

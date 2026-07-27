@@ -77,8 +77,15 @@ async function loadCoursesLanding() {
 
       const card = document.createElement("div");
       card.className = "course-card";
+      card.style.cursor = "pointer";
+      card.onclick = () => window.location.href = `course.html?id=${c.id}`;
+      
+      const iconHtml = c.icon && c.icon.startsWith('http')
+        ? `<img class="icon" src="${c.icon}" alt="Course Icon" style="width:45px; height:45px; object-fit:contain; border-radius:6px; display:block;" onerror="this.outerHTML='<span class=\\'icon\\'>📁</span>'">`
+        : `<span class="icon">${c.icon || "📁"}</span>`;
+
       card.innerHTML = `
-        <span class="icon">${c.icon}</span>
+        ${iconHtml}
         <h3>${c.title}</h3>
         <p>${shortDesc}</p>
         <div class="course-meta">
@@ -200,10 +207,10 @@ function animateCounter(element, endValue, duration = 1200) {
       endValue.includes("k") || endValue.includes("K")
         ? Math.floor(start) + "k"
         : endValue.includes("L")
-        ? Math.floor(start) + "L"
-        : endValue.includes("%")
-        ? Math.floor(start) + "%"
-        : Math.floor(start);
+          ? Math.floor(start) + "L"
+          : endValue.includes("%")
+            ? Math.floor(start) + "%"
+            : Math.floor(start);
   }, 20);
 }
 
@@ -454,8 +461,8 @@ function animateCount(element, finalValue) {
     element.textContent = finalValue.includes("+")
       ? Math.floor(start) + "+"
       : finalValue.includes("/")
-      ? start.toFixed(1) + "/5"
-      : Math.floor(start);
+        ? start.toFixed(1) + "/5"
+        : Math.floor(start);
   }, 20);
 }
 
